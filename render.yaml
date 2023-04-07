@@ -1,0 +1,48 @@
+services:
+  - name: web
+    buildCommand: |
+      pip install -r requirements.txt
+    build:
+      dockerfile: Dockerfile
+    startCommand: python manage.py runserver 0.0.0.0:8000
+    env:
+      - key: DB_NAME
+        value: ${DB_NAME}
+      - key: DB_USER
+        value: ${DB_USER}
+      - key: DB_PASSWORD
+        value: ${DB_PASSWORD}
+      - key: REDIS_HOST
+        value: ${REDIS_HOST}
+    envVars:
+      - file: .env
+    volumes:
+      - type: BIND
+        source: .
+        target: /app
+    ports:
+      - 8000
+    dependsOn:
+      - name: db
+      - name: redis
+  - name: db
+    image: "postgres:13"
+    env:
+      - key: POSTGRES_DB
+        value: ${DB_NAME}
+      - key: POSTGRES_USER
+        value: ${DB_USER}
+      - key: POSTGRES_PASSWORD
+        value: ${DB_PASSWORD}
+    envVars:
+      - file: .env
+  - name: redis
+    image: "redis:latest"
+    command: redis-server
+    env:
+      - key: REDIS_HOST
+        value: ${REDIS_HOST}
+    envVars:
+      - file: .env
+    ports:
+      - 6380
