@@ -9,3 +9,4 @@ sqlparse==0.4.3
 celery==5.2.6
 drf_yasg==1.20.0
 PyJWT==2.4.0
+redis==4.3.1

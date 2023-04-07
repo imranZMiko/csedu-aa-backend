@@ -83,7 +83,6 @@ def login(request: Request) -> Response:
         }
         set_cache(key=f'{username}_token_data', value=json.dumps(
             UserSerializer(user).data), ttl=5*60*60)
-        print(get_cache(f'{username}_token_data'))
         return Response(data=data, status=status.HTTP_201_CREATED)
     except User.DoesNotExist:
         raise ValidationError(detail='user not found',

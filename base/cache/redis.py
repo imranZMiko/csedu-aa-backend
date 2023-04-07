@@ -2,6 +2,7 @@ from django.core.cache import cache
 
 
 def set_cache(key: str, value: str, ttl: int) -> bool:
+    print("Hello")
     print(key, value)
     try:
         cache.set(key, value, timeout=ttl)

@@ -119,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379',
+        'LOCATION': REDIS_HOST,
     }
 }
 
@@ -149,8 +149,8 @@ AUTH_USER_MODEL = 'accounts.User'
 
 # Celery
 # CELERY_BROKER_URL = RABBITMQ_URL
-CELERY_BROKER_URL = "redis://{}:6379/".format(REDIS_HOST)
-CELERY_RESULT_BACKEND = "redis://{}:6379/".format(REDIS_HOST)
+CELERY_BROKER_URL = REDIS_HOST
+CELERY_RESULT_BACKEND = REDIS_HOST
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
