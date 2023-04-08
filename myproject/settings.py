@@ -13,7 +13,7 @@ SECRET_KEY = 'django-insecure-a3ydslp!to*7f=#5#u_dg((&gkn30m2q74s73d&r+3gy#*7917
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 # Environment Variables
 DB_NAME = os.environ.get('DB_NAME')
