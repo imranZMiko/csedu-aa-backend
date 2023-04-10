@@ -67,3 +67,89 @@ class WorkExperienceSerializer(serializers.ModelSerializer):
         if self.instance and self.instance.profile.user != self.context['request'].user:
             raise serializers.ValidationError('You can only update your own work experiences.')
         return data
+    
+class FullProfileSerializer(serializers.ModelSerializer):
+    social_media_links = SocialMediaLinkSerializer(many=True)
+    present_address = PresentAddressSerializer()
+    skills = SkillSerializer(many=True)
+    academic_histories = AcademicHistorySerializer(many=True)
+    work_experiences = WorkExperienceSerializer(many=True)
+
+    class Meta:
+        model = Profile
+        fields = ['id', 'first_name', 'last_name', 'profile_picture', 'date_of_birth', 'sex', 'batch_number', 'hometown', 'social_media_links', 'present_address', 'skills', 'academic_histories', 'work_experiences']
+        read_only_fields = ['id']
+    
+    def update(self, instance, validated_data):
+        user = self.context['request'].user
+        if instance.user != user:
+            raise serializers.ValidationError('Cannot update profile of another user')
+        
+        social_media_links_data = validated_data.pop('social_media_links', [])
+        present_address_data = validated_data.pop('present_address', {})
+        skills_data = validated_data.pop('skills', [])
+        academic_histories_data = validated_data.pop('academic_histories', [])
+        work_experiences_data = validated_data.pop('work_experiences', [])
+        
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        
+        instance.social_media_links.all().delete()
+        for link_data in social_media_links_data:
+            SocialMediaLink.objects.create(profile=instance, **link_data)
+        
+        instance.present_address.delete()
+        PresentAddress.objects.create(profile=instance, **present_address_data)
+        
+        instance.skills.all().delete()
+        for skill_data in skills_data:
+            Skill.objects.create(profile=instance, **skill_data)
+        
+        instance.academic_histories.all().delete()
+        for academic_history_data in academic_histories_data:
+            AcademicHistory.objects.create(profile=instance, **academic_history_data)
+        
+        instance.work_experiences.all().delete()
+        for work_experience_data in work_experiences_data:
+            WorkExperience.objects.create(profile=instance, **work_experience_data)
+        
+        instance.save()
+        
+        return instance
+    
+    def partial_update(self, instance, validated_data):
+        user = self.context['request'].user
+        if instance.user != user:
+            raise serializers.ValidationError('Cannot update profile of another user')
+        
+        social_media_links_data = validated_data.pop('social_media_links', [])
+        present_address_data = validated_data.pop('present_address', {})
+        skills_data = validated_data.pop('skills', [])
+        academic_histories_data = validated_data.pop('academic_histories', [])
+        work_experiences_data = validated_data.pop('work_experiences', [])
+        
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        
+        instance.social_media_links.all().delete()
+        for link_data in social_media_links_data:
+            SocialMediaLink.objects.create(profile=instance, **link_data)
+        
+        instance.present_address.delete()
+        PresentAddress.objects.create(profile=instance, **present_address_data)
+        
+        instance.skills.all().delete()
+        for skill_data in skills_data:
+            Skill.objects.create(profile=instance, **skill_data)
+        
+        instance.academic_histories.all().delete()
+        for academic_history_data in academic_histories_data:
+            AcademicHistory.objects.create(profile=instance, **academic_history_data)
+        
+        instance.work_experiences.all().delete()
+        for work_experience_data in work_experiences_data:
+            WorkExperience.objects.create(profile=instance, **work_experience_data)
+        
+        instance.save()
+        
+        return instance

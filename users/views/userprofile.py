@@ -7,6 +7,7 @@ from users.serializers import ProfileSerializer, UserSerializer
 from rest_framework import status
 from users.models import User, Profile
 from users.serializers import UserSerializer, ProfileSerializer
+from rest_framework.pagination import PageNumberPagination
 
 
 User = get_user_model()
@@ -66,6 +67,32 @@ class ProfileList(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        queryset = User.objects.all()
+        batch_number = self.request.query_params.get('batch', None)
+        company = self.request.query_params.get('company', None)
+        country = self.request.query_params.get('city', None)
+        city = self.request.query_params.get('country', None)
+        hometown = self.request.query_params.get('hometown', None)
+
+        if batch_number:
+            queryset = queryset.filter(profile__batch_number=batch_number)
+        if company:
+            queryset = queryset.filter(profile__work_experiences__company_name=company)
+        if country:
+            queryset = queryset.filter(profile__present_address__country=country)
+        if city:
+            queryset = queryset.filter(profile__present_address__city=city)
+        if hometown:
+            queryset = queryset.filter(profile__hometown=hometown)
+
+        return queryset
+
+
+
+
+

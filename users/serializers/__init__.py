@@ -1,4 +1,4 @@
 from users.serializers.user import UserSerializer
 from users.serializers.profile import ProfileSerializer
-from users.serializers.profile import SocialMediaLinkSerializer, PresentAddressSerializer, SkillSerializer, AcademicHistorySerializer, WorkExperienceSerializer
+from users.serializers.profile import SocialMediaLinkSerializer, PresentAddressSerializer, SkillSerializer, AcademicHistorySerializer, WorkExperienceSerializer, FullProfileSerializer
 from users.serializers.referral import ReferralSerializer
