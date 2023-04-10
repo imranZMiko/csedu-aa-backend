@@ -69,7 +69,6 @@ class ProfileList(generics.ListAPIView):
 class UserList(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         queryset = User.objects.all()
@@ -89,6 +88,14 @@ class UserList(generics.ListAPIView):
             queryset = queryset.filter(profile__present_address__city=city)
         if hometown:
             queryset = queryset.filter(profile__hometown=hometown)
+
+        page_size = self.request.query_params.get('page_size', None)
+        
+        if page_size :
+            self.pagination_class = PageNumberPagination
+            self.pagination_class.page_size = int(page_size)
+        else:
+            self.pagination_class = None
 
         return queryset
 
