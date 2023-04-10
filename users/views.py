@@ -68,6 +68,13 @@ class ProfileDetail(generics.RetrieveUpdateAPIView):
             raise Http404
         return profile
 
+class SelfProfileDetail(generics.RetrieveUpdateAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user.profile
+
 
 class UserDetail(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
@@ -80,6 +87,14 @@ class UserDetail(generics.RetrieveUpdateAPIView):
         except User.DoesNotExist:
             raise Http404
         return user
+    
+class SelfUserDetail(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
 
 class ProfileList(generics.ListAPIView):
     queryset = Profile.objects.all()
