@@ -12,6 +12,7 @@ def generate_referral_code():
 class Referral(models.Model):
     referrer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='referrals')
     referral_code = models.CharField(max_length=10, unique=True, default=generate_referral_code)
+    referred_email = models.EmailField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

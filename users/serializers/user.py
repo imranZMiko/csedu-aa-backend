@@ -18,6 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         referral = validated_data.pop('referred_by', None)
+        referred_email = validated_data.pop('referred_email', None)
         if referral:
             raise serializers.ValidationError('Cannot contain referred_by field')
         referral_code = validated_data.pop('referral')
@@ -26,6 +27,8 @@ class UserSerializer(serializers.ModelSerializer):
             referral_user = referral.referrer
         except ObjectDoesNotExist:
             raise serializers.ValidationError('Invalid referral')
+        if referred_email != referral.referred_email:
+            raise serializers.ValidationError('The referral should be used with the same email it was created for.')
         user = User(**validated_data, referred_by=referral_user)
         user.set_password(validated_data['password'])
         user.save()
