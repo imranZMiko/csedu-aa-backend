@@ -2,16 +2,21 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from base.models import BaseModel
 from users.managers import UserManager
-
-
-
+import re
+from django.core.exceptions import ValidationError
 
 class User(BaseModel, AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=30, unique=True)
     email_address = models.EmailField(max_length=255, unique=True)
     referred_by = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True)
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+
+    # Custom validator for the username field
+    def validate_username(value):
+        if not re.match('^\w+$', value):
+            raise ValidationError('Username can only contain letters, numbers, or underscores.')
+
+    username = models.CharField(max_length=30, unique=True, validators=[validate_username])
 
     USERNAME_FIELD = 'username'
     EMAIL_FIELD = 'email_address'

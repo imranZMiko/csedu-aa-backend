@@ -69,6 +69,9 @@ class WorkExperienceSerializer(serializers.ModelSerializer):
         return data
     
 class FullProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    email_address = serializers.CharField(source='user.email_address', read_only=True)
+
     social_media_links = SocialMediaLinkSerializer(many=True)
     present_address = PresentAddressSerializer()
     skills = SkillSerializer(many=True)
@@ -77,8 +80,8 @@ class FullProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['id', 'first_name', 'last_name', 'profile_picture', 'date_of_birth', 'sex', 'batch_number', 'hometown', 'social_media_links', 'present_address', 'skills', 'academic_histories', 'work_experiences']
-        read_only_fields = ['id']
+        fields = ['id', 'username', 'email_address', 'first_name', 'last_name', 'profile_picture', 'date_of_birth', 'sex', 'batch_number', 'hometown', 'social_media_links', 'present_address', 'skills', 'academic_histories', 'work_experiences']
+        read_only_fields = ['id', 'username', 'email_address']
     
     def update(self, instance, validated_data):
         user = self.context['request'].user
