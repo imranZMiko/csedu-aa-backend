@@ -101,7 +101,10 @@ class FullProfileSerializer(serializers.ModelSerializer):
         for link_data in social_media_links_data:
             SocialMediaLink.objects.create(profile=instance, **link_data)
         
-        instance.present_address.delete()
+        try:
+            instance.present_address.delete()
+        except:
+            pass
         PresentAddress.objects.create(profile=instance, **present_address_data)
         
         instance.skills.all().delete()
@@ -134,24 +137,32 @@ class FullProfileSerializer(serializers.ModelSerializer):
         for key, value in validated_data.items():
             setattr(instance, key, value)
         
-        instance.social_media_links.all().delete()
-        for link_data in social_media_links_data:
-            SocialMediaLink.objects.create(profile=instance, **link_data)
+        if social_media_links_data:
+            instance.social_media_links.all().delete()
+            for link_data in social_media_links_data:
+                SocialMediaLink.objects.create(profile=instance, **link_data)
+
+        if present_address_data:
+            try:
+                instance.present_address.delete()
+            except:
+                pass
+            PresentAddress.objects.create(profile=instance, **present_address_data)
         
-        instance.present_address.delete()
-        PresentAddress.objects.create(profile=instance, **present_address_data)
+        if skills_data:
+            instance.skills.all().delete()
+            for skill_data in skills_data:
+                Skill.objects.create(profile=instance, **skill_data)
         
-        instance.skills.all().delete()
-        for skill_data in skills_data:
-            Skill.objects.create(profile=instance, **skill_data)
+        if academic_histories_data:
+            instance.academic_histories.all().delete()
+            for academic_history_data in academic_histories_data:
+                AcademicHistory.objects.create(profile=instance, **academic_history_data)
         
-        instance.academic_histories.all().delete()
-        for academic_history_data in academic_histories_data:
-            AcademicHistory.objects.create(profile=instance, **academic_history_data)
-        
-        instance.work_experiences.all().delete()
-        for work_experience_data in work_experiences_data:
-            WorkExperience.objects.create(profile=instance, **work_experience_data)
+        if work_experience_data:
+            instance.work_experiences.all().delete()
+            for work_experience_data in work_experiences_data:
+                WorkExperience.objects.create(profile=instance, **work_experience_data)
         
         instance.save()
         
