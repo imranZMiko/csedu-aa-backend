@@ -70,10 +70,11 @@ class UserCardSerializer(serializers.ModelSerializer):
     city = serializers.CharField(source='profile.present_address.city')
     current_company = serializers.SerializerMethodField()
     sex = serializers.CharField(source='profile.sex')
+    profile_picture = serializers.URLField(source='profile.profile_picture', allow_null=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email_address', 'first_name', 'last_name', 'batch_number', 'country', 'city', 'current_company', 'sex']
+        fields = ['id', 'username', 'email_address', 'first_name', 'last_name', 'batch_number', 'country', 'city', 'current_company', 'sex', 'profile_picture']
 
     def get_current_company(self, obj):
         current_work_experience = WorkExperience.objects.filter(profile__user=obj, currently_working=True).first()

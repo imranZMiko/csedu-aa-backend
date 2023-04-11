@@ -8,7 +8,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    profile_picture = models.ImageField(upload_to='profile_pics', blank=True, null=True)
+    profile_picture = models.URLField(blank=True, null=True)
     date_of_birth = models.DateField(null=True, blank=True)
     SEX_CHOICES = (
         ('M', 'Male'),
