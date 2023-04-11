@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from users.models import Referral, Profile
+from users.models import Referral, Profile, WorkExperience
 
 User = get_user_model()
 
@@ -61,3 +61,24 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+class UserCardSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(source='profile.first_name')
+    last_name = serializers.CharField(source='profile.last_name')
+    batch_number = serializers.IntegerField(source='profile.batch_number')
+    country = serializers.CharField(source='profile.present_address.country')
+    city = serializers.CharField(source='profile.present_address.city')
+    current_company = serializers.SerializerMethodField()
+    sex = serializers.CharField(source='profile.sex')
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email_address', 'first_name', 'last_name', 'batch_number', 'country', 'city', 'current_company', 'sex']
+
+    def get_current_company(self, obj):
+        current_work_experience = WorkExperience.objects.filter(profile__user=obj, currently_working=True).first()
+        if current_work_experience:
+            return current_work_experience.company_name
+        else:
+            return None
+

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.http import Http404
 from django.contrib.auth import get_user_model
 from users.models import Profile
-from users.serializers import ProfileSerializer, UserSerializer
+from users.serializers import ProfileSerializer, UserSerializer, UserCardSerializer
 from rest_framework import status
 from users.models import User, Profile
 from users.serializers import UserSerializer, ProfileSerializer
@@ -67,7 +67,7 @@ class ProfileList(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 class UserList(generics.ListAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserCardSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
@@ -81,7 +81,7 @@ class UserList(generics.ListAPIView):
         if batch_number:
             queryset = queryset.filter(profile__batch_number=batch_number)
         if company:
-            queryset = queryset.filter(profile__work_experiences__company_name=company)
+            queryset = queryset.filter(profile__work_experiences__company_name=company).distinct()
         if country:
             queryset = queryset.filter(profile__present_address__country=country)
         if city:
