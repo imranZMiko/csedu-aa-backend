@@ -13,6 +13,8 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
 
     # Custom validator for the username field
     def validate_username(value):
+        if len(value) < 3:
+            raise ValidationError('Username must be at least 3 characters long.')
         if not re.match('^\w+$', value):
             raise ValidationError('Username can only contain letters, numbers, or underscores.')
 
