@@ -49,13 +49,14 @@ class SkillSerializer(serializers.ModelSerializer):
 class AcademicHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = AcademicHistory
-        fields = ('id', 'profile', 'institution_name', 'concentration', 'start_date', 'graduation_date', 'is_currently_studying', 'result')
+        fields = ('id', 'profile', 'institution_name', 'degree_name', 'concentration', 'start_date', 'graduation_date', 'is_currently_studying', 'result')
         read_only_fields = ('id', 'profile')
 
     def validate(self, data):
         if self.instance and self.instance.profile.user != self.context['request'].user:
             raise serializers.ValidationError('You can only update your own academic histories.')
         return data
+
 
 class WorkExperienceSerializer(serializers.ModelSerializer):
     class Meta:

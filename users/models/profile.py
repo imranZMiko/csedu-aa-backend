@@ -56,6 +56,7 @@ class Skill(models.Model):
 class AcademicHistory(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='academic_histories')
     institution_name = models.CharField(max_length=255)
+    degree_name = models.CharField(max_length=255)
     concentration = models.CharField(max_length=255)
     start_date = models.DateField()
     graduation_date = models.DateField(null=True, blank=True)
@@ -63,7 +64,8 @@ class AcademicHistory(models.Model):
     result = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.concentration} ({self.institution_name})"
+        return f"{self.degree_name} ({self.concentration}) at {self.institution_name}"
+
 
 class WorkExperience(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='work_experiences')
