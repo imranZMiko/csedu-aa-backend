@@ -4,7 +4,7 @@ from users.models import Profile, WorkExperience, Skill, SocialMediaLink, Academ
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['id', 'first_name', 'last_name', 'profile_picture', 'date_of_birth', 'sex', 'batch_number', 'hometown']
+        fields = ['id', 'first_name', 'last_name', 'profile_picture', 'date_of_birth', 'sex', 'batch_number', 'registration_number', 'hometown', 'phone_number']
         read_only_fields = ['id']
     
     def update(self, instance, validated_data):
@@ -71,18 +71,18 @@ class WorkExperienceSerializer(serializers.ModelSerializer):
     
 class FullProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
-    email_address = serializers.CharField(source='user.email_address', read_only=True)
-
-    social_media_links = SocialMediaLinkSerializer(many=True, required = False)
-    present_address = PresentAddressSerializer(required = False)
-    skills = SkillSerializer(many=True, required = False)
-    academic_histories = AcademicHistorySerializer(many=True, required = False)
-    work_experiences = WorkExperienceSerializer(many=True, required = False)
+    email_address = serializers.EmailField(source='user.email_address', read_only=True)
+    social_media_links = SocialMediaLinkSerializer(many=True, required=False)
+    present_address = PresentAddressSerializer(required=False)
+    skills = SkillSerializer(many=True, required=False)
+    academic_histories = AcademicHistorySerializer(many=True, required=False)
+    work_experiences = WorkExperienceSerializer(many=True, required=False)
 
     class Meta:
         model = Profile
-        fields = ['id', 'username', 'email_address', 'first_name', 'last_name', 'profile_picture', 'date_of_birth', 'sex', 'batch_number', 'hometown', 'social_media_links', 'present_address', 'skills', 'academic_histories', 'work_experiences']
-        read_only_fields = ['id', 'username', 'email_address']
+        fields = ['id', 'username', 'email_address', 'first_name', 'last_name', 'profile_picture', 'date_of_birth', 'sex', 'batch_number', 'registration_number', 'hometown', 'phone_number', 'social_media_links', 'present_address', 'skills', 'academic_histories', 'work_experiences']
+        read_only_fields = ['id', 'username', 'email']
+
     
     def update(self, instance, validated_data):
         if self.partial:

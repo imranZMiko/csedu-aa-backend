@@ -14,7 +14,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email_address', 'password', 'referral_code', 'referred_by', 'first_name', 'last_name', 'batch_number', 'sex']
+        fields = ['id', 'is_admin', 'username', 'email_address', 'password', 'referral_code', 'referred_by', 'first_name', 'last_name', 'batch_number', 'sex']
+        read_only_fields = ['id', 'is_admin']
         extra_kwargs = {
             'password': {'write_only': True},
             'username': {'validators': []},
@@ -27,23 +28,28 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Cannot contain referred_by field')
         referral_code = validated_data.pop('referral_code')
         try:
-            referral = Referral.objects.get(referral_code = referral_code)
+            referral = Referral.objects.get(referral_code=referral_code)
             referral_user = referral.referrer
         except ObjectDoesNotExist:
             raise serializers.ValidationError('Invalid referral')
         if email_address != referral.referred_email:
             raise serializers.ValidationError('The referral should be used with the same email it was created for.')
-        
+
         first_name = validated_data.pop('first_name', None)
         last_name = validated_data.pop('last_name', None)
         batch_number = validated_data.pop('batch_number', None)
         sex = validated_data.pop('sex', None)
+        password = validated_data.pop('password', None)
+        username = validated_data.pop('username', None)
+        # Create a new user using the UserManager
+        user = User.objects.create_user(
+            username=username,
+            email_address=email_address,
+            password=password,
+            referred_by=referral_user,
+        )
 
-        user = User(**validated_data, referred_by=referral_user, email_address = email_address)
-        user.set_password(validated_data['password'])
-        user.save()
         # Create a profile instance for the newly created user
-
         Profile.objects.create(user=user, first_name=first_name, last_name=last_name, batch_number=batch_number, sex=sex)
         return user
 
@@ -74,7 +80,8 @@ class UserCardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email_address', 'first_name', 'last_name', 'batch_number', 'country', 'city', 'current_company', 'sex', 'profile_picture']
+        fields = ['id', 'is_admin', 'username', 'email_address', 'first_name', 'last_name', 'batch_number', 'country', 'city', 'current_company', 'sex', 'profile_picture']
+        read_only_fields = ['id', 'is_admin']
 
     def get_current_company(self, obj):
         current_work_experience = WorkExperience.objects.filter(profile__user=obj, currently_working=True).first()

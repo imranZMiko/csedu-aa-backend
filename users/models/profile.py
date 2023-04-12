@@ -16,10 +16,13 @@ class Profile(models.Model):
     )
     sex = models.CharField(max_length=1, choices=SEX_CHOICES, null=True, blank=True)
     batch_number = models.IntegerField(null=True, blank=True)
+    registration_number = models.CharField(max_length=20, null=True, blank=True)
     hometown = models.CharField(max_length=100, null=True, blank=True)
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+
 
 class SocialMediaLink(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='social_media_links')
