@@ -141,29 +141,29 @@ class FullProfileSerializer(serializers.ModelSerializer):
         for key, value in validated_data.items():
             setattr(instance, key, value)
         
-        if social_media_links_data:
+        if social_media_links_data is not None:
             instance.social_media_links.all().delete()
             for link_data in social_media_links_data:
                 SocialMediaLink.objects.create(profile=instance, **link_data)
 
-        if present_address_data:
+        if present_address_data is not None:
             try:
                 instance.present_address.delete()
             except:
                 pass
             PresentAddress.objects.create(profile=instance, **present_address_data)
         
-        if skills_data:
+        if skills_data is not None:
             instance.skills.all().delete()
             for skill_data in skills_data:
                 Skill.objects.create(profile=instance, **skill_data)
         
-        if academic_histories_data:
+        if academic_histories_data is not None:
             instance.academic_histories.all().delete()
             for academic_history_data in academic_histories_data:
                 AcademicHistory.objects.create(profile=instance, **academic_history_data)
         
-        if work_experiences_data:
+        if work_experiences_data is not None:
             instance.work_experiences.all().delete()
             for work_experience_data in work_experiences_data:
                 WorkExperience.objects.create(profile=instance, **work_experience_data)
