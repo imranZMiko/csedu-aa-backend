@@ -20,5 +20,7 @@ urlpatterns = [
     path('user/<str:username>/', views.UserBlogListAPIView.as_view(), name='user-blog-list'),
     # Endpoint for listing all blogs of self
     path('self/', views.SelfBlogListAPIView.as_view(), name='self-blog-list'),
+    # Endpoint for listing all tags
+    path('tags/', views.TagListAPIView.as_view(), name='tag-list'),
 ]
 

@@ -4,3 +4,4 @@ from .blog_list import *
 from .comments import *
 from .likes import *
 from .commentlikes import *
+from .tags import *
