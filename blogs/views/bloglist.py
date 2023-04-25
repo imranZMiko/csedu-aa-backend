@@ -14,6 +14,7 @@ class BlogListAPIView(generics.ListAPIView):
         tag_slugs = self.request.query_params.getlist('tags__slug', [])
         if tag_slugs:
             queryset = queryset.annotate(tag_count=Count('tags__slug', filter=Q(tags__slug__in=tag_slugs)))
+            queryset = queryset.filter(tag_count__gte=1)
             queryset = queryset.order_by('-tag_count', '-updated_at')
         else:
             queryset = queryset.order_by('-updated_at')

@@ -1,13 +1,15 @@
 from rest_framework import serializers
 from bs4 import BeautifulSoup
 from blogs.models import Blog
+from .blog_read import TagSerializer
 
 class BlogListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     content_head = serializers.SerializerMethodField()
+    tags = TagSerializer(many=True)
     class Meta:
         model = Blog
-        fields = ('id', 'user', 'title', 'content_head', 'created_at', 'updated_at')
+        fields = ('id', 'user', 'title', 'tags', 'content_head', 'created_at', 'updated_at')
 
     def get_user(self, obj):
         # Return a serialized representation of the user (username, first_name, last_name)
