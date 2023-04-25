@@ -3,35 +3,60 @@ from users.views import obtain_auth_token, logout
 from . import views
 
 urlpatterns = [
-    path('login/', obtain_auth_token, name='token_obtain_pair'),
-    path('logout/',logout, name = 'logout'),
-    path('user/',views.SelfUserDetail.as_view(), name = 'user_self'),
-    path('create/users/', views.UserCreate.as_view(), name = 'user_create'),
-    path('users/', views.UserList.as_view(), name='user_list'),
-    path('users/<str:username>/', views.UserDetail.as_view(), name='user_detail'),
-    path('basic-profile/',views.SelfProfileDetail.as_view(), name = 'basic_profile_self'),
-    path('basic-profiles/', views.ProfileList.as_view(), name='basic_profile_list'),
-    path('basic-profiles/<str:username>/', views.ProfileDetail.as_view(), name='basic_profile_detail'),
-    path('referrals/create/', views.ReferralCreate.as_view(), name='referral_create'),
-    path('profile/social-media-links/', views.SocialMediaLinkListView.as_view(), name='social-media-links'),
-    path('profile/create/social-media-links/', views.SocialMediaLinkCreateView.as_view(), name='create-social-media-link'),
-    path('profile/present-address/', views.PresentAddressDetailView.as_view(), name='present-address'),
-    path('profile/create/present-address/', views.PresentAddressCreateView.as_view(), name='create-present-address'),
-    path('profile/skills/', views.SkillListView.as_view(), name='skills'),
-    path('profile/create/skills/', views.SkillCreateView.as_view(), name='create-skill'),
-    path('profile/work-experiences/', views.WorkExperienceListView.as_view(), name='work-experiences'),
-    path('profile/create/work-experiences/', views.WorkExperienceCreateView.as_view(), name='create-work-experience'),
-    path('profile/academic-histories/', views.AcademicHistoryListView.as_view(), name='academic-histories'),
-    path('profile/create/academic-histories/', views.AcademicHistoryCreateView.as_view(), name='create-academic-history'),
-    path('profile/social-media-links/<int:pk>/', views.SocialMediaLinkDetailView.as_view(), name='social-media-link-detail'),
-    path('profile/skills/<int:pk>/', views.SkillDetailView.as_view(), name='skill-detail'),
-    path('profile/work-experiences/<int:pk>/', views.WorkExperienceDetailView.as_view(), name='work-experience-detail'),
-    path('profile/academic-histories/<int:pk>/', views.AcademicHistoryDetailView.as_view(), name='academic-history-detail'),
-    path('profiles/<str:username>/social-media-links/', views.SocialMediaLinkUserListView.as_view(), name='user-social-media-links'),
-    path('profiles/<str:username>/skills/', views.SkillUserListView.as_view(), name='user-skills'),
-    path('profiles/<str:username>/work-experiences/', views.WorkExperienceUserListView.as_view(), name='user-work-experiences'),
-    path('profiles/<str:username>/academic-histories/', views.AcademicHistoryUserListView.as_view(), name='user-academic-histories'),
-    path('profiles/<str:username>/present-address/', views.PresentAddressUserDetailView.as_view(), name='user-present-address'),
-    path('profile/', views.OwnFullProfileView.as_view(), name = 'own_full_profile'),
-    path('profiles/<str:username>/', views.FullProfileDetail.as_view(), name='full_profile_detail')
+    # Authentication endpoints
+    path('login/', obtain_auth_token, name='token_obtain_pair'),  # Endpoint for obtaining an authentication token
+    path('logout/',logout, name='logout'),  # Endpoint for logging out a user
+
+    # User endpoints
+    path('user/', views.SelfUserDetail.as_view(), name='user_self'),  # Endpoint for retrieving self user information
+    path('create/users/', views.UserCreate.as_view(), name='user_create'),  # Endpoint for creating a new user
+    path('users/', views.UserList.as_view(), name='user_list'),  # Endpoint for retrieving a list of users
+    path('users/<str:username>/', views.UserDetail.as_view(), name='user_detail'),  # Endpoint for retrieving user details by username
+
+    # Profile endpoints
+    path('basic-profile/', views.SelfProfileDetail.as_view(), name='basic_profile_self'),  # Endpoint for retrieving self profile information
+    path('basic-profiles/', views.ProfileList.as_view(), name='basic_profile_list'),  # Endpoint for retrieving a list of profiles
+    path('basic-profiles/<str:username>/', views.ProfileDetail.as_view(), name='basic_profile_detail'),  # Endpoint for retrieving profile details by username
+
+    # Referral endpoint
+    path('referrals/create/', views.ReferralCreate.as_view(), name='referral_create'),  # Endpoint for creating a referral
+
+    # Social media link endpoints
+    path('profile/social-media-links/', views.SocialMediaLinkListView.as_view(), name='social-media-links'),  # Endpoint for retrieving social media links for a profile
+    path('profile/create/social-media-links/', views.SocialMediaLinkCreateView.as_view(), name='create-social-media-link'),  # Endpoint for creating a social media link for a profile
+
+    # Present address endpoints
+    path('profile/present-address/', views.PresentAddressDetailView.as_view(), name='present-address'),  # Endpoint for retrieving present address for a profile
+    path('profile/create/present-address/', views.PresentAddressCreateView.as_view(), name='create-present-address'),  # Endpoint for creating a present address for a profile
+
+    # Skill endpoints
+    path('profile/skills/', views.SkillListView.as_view(), name='skills'),  # Endpoint for retrieving skills for a profile
+    path('profile/create/skills/', views.SkillCreateView.as_view(), name='create-skill'),  # Endpoint for creating a skill for a profile
+
+    # Work experience endpoints
+    path('profile/work-experiences/', views.WorkExperienceListView.as_view(), name='work-experiences'),  # Endpoint for retrieving
+    path('profile/create/work-experiences/', views.WorkExperienceCreateView.as_view(), name='create-work-experience'),  # Create a new work experience
+
+    # Academic Histories
+    path('profile/academic-histories/', views.AcademicHistoryListView.as_view(), name='academic-histories'),  # Retrieve list of academic histories
+    path('profile/create/academic-histories/', views.AcademicHistoryCreateView.as_view(), name='create-academic-history'),  # Create a new academic history
+
+    # Detail Views
+    path('profile/social-media-links/<int:pk>/', views.SocialMediaLinkDetailView.as_view(), name='social-media-link-detail'),  # Retrieve details of a social media link by primary key
+    path('profile/skills/<int:pk>/', views.SkillDetailView.as_view(), name='skill-detail'),  # Retrieve details of a skill by primary key
+    path('profile/work-experiences/<int:pk>/', views.WorkExperienceDetailView.as_view(), name='work-experience-detail'),  # Retrieve details of a work experience by primary key
+    path('profile/academic-histories/<int:pk>/', views.AcademicHistoryDetailView.as_view(), name='academic-history-detail'),  # Retrieve details of an academic history by primary key
+
+    # User-Specific Views
+    path('profiles/<str:username>/social-media-links/', views.SocialMediaLinkUserListView.as_view(), name='user-social-media-links'),  # Retrieve social media links for a user by username
+    path('profiles/<str:username>/skills/', views.SkillUserListView.as_view(), name='user-skills'),  # Retrieve skills for a user by username
+    path('profiles/<str:username>/work-experiences/', views.WorkExperienceUserListView.as_view(), name='user-work-experiences'),  # Retrieve work experiences for a user by username
+    path('profiles/<str:username>/academic-histories/', views.AcademicHistoryUserListView.as_view(), name='user-academic-histories'),  # Retrieve academic histories for a user by username
+    path('profiles/<str:username>/present-address/', views.PresentAddressUserDetailView.as_view(), name='user-present-address'),  # Retrieve present address for a user by username
+
+    # Own Profile View
+    path('profile/', views.OwnFullProfileView.as_view(), name='own_full_profile'),  # Retrieve full profile information for the authenticated user's own profile
+
+    # Full Profile View
+    path('profiles/<str:username>/', views.FullProfileDetail.as_view(), name='full_profile_detail'),  # Retrieve full profile information of a user by username
 ]
