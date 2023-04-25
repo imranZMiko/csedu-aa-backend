@@ -10,7 +10,7 @@ class Blog(BaseModel):
     title = models.CharField(max_length=255)
     tags = models.ManyToManyField(Tag)
     content = models.TextField()
-    cover_picture = models.URLField(max_length=255)  # Add coverPicture field as URL field
+    cover_picture = models.URLField(max_length=255, blank=True, null=True)  # Make cover_picture optional
 
     # Other fields or methods specific to your blog model
 

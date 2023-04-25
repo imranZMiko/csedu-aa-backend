@@ -5,9 +5,9 @@ urlpatterns = [
     # Endpoint for listing all blogs
     path('', views.BlogListAPIView.as_view(), name='blog_list'),
     # Endpoint for creating a blog
-    path('', views.BlogCreateUpdateRetrieveDestroyView.as_view(), name='blog-create'),
+    path('create/', views.BlogCreateView.as_view(), name='blog-create'),
     # Endpoint for retrieving, updating, and deleting a blog by ID
-    path('<int:pk>/', views.BlogCreateUpdateRetrieveDestroyView.as_view(), name='blog-detail'),
+    path('<int:pk>/', views.BlogUpdateRetrieveDestroyView.as_view(), name='blog-detail'),
     # Endpoint for creating a new comment
     path('comments/', views.CommentCreateUpdateView.as_view(), name='comment-create'),
     # Endpoint for updating and deleting a specific comment

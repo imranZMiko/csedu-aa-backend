@@ -53,7 +53,8 @@ class BlogReadSerializer(serializers.ModelSerializer):
     likes = LikeSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True)
     user = serializers.SerializerMethodField()
-    likes_count = serializers.SerializerMethodField()  # Update likes_count field
+    likes_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()  # Add comments_count field
 
     def get_user(self, obj):
         # Retrieve the user profile information for the blog's user
@@ -70,9 +71,11 @@ class BlogReadSerializer(serializers.ModelSerializer):
         # Retrieve the number of likes associated with the blog
         return obj.likes.count()
 
+    def get_comments_count(self, obj):
+        # Retrieve the number of comments associated with the blog
+        return obj.comments.count()  # Assuming comments is a related name for comments in the Blog model
+
     class Meta:
         model = Blog
-        fields = ('id', 'user', 'title', 'tags', 'content', 'comments', 'likes', 'likes_count', 'created_at', 'updated_at', 'cover_picture') 
-        read_only_fields = ('id', 'user', 'comments', 'likes', 'likes_count', 'created_at', 'updated_at')
-
-
+        fields = ('id', 'user', 'title', 'tags', 'content', 'comments', 'likes', 'likes_count', 'comments_count', 'created_at', 'updated_at', 'cover_picture') 
+        read_only_fields = ('id', 'user', 'comments', 'likes', 'likes_count', 'comments_count', 'created_at', 'updated_at')

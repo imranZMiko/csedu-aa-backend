@@ -38,17 +38,28 @@ class BlogCreateUpdateSerializer(serializers.ModelSerializer):
             instance.title = validated_data.get('title', instance.title)
             instance.content = validated_data.get('content', instance.content)
             instance.cover_picture = validated_data.get('cover_picture', instance.cover_picture)
+            # Update tags
+            if tags_data is not None:
+                instance.tags.set(tags_data)
+            
+            else :
+                tags = instance.tags.all()
+                instance.tags.set(tags)
+
         else:
             # Perform full update for PUT request
             instance.title = validated_data['title']
             instance.content = validated_data['content']
             instance.cover_picture = validated_data['cover_picture']
-        instance.save()
+            # Update tags
+            if tags_data is not None:
+                instance.tags.set(tags_data)
+            
+            else :
+                tags = []
+                instance.tags.set(tags)
 
-        # Update tags
-        if tags_data is not None:
-            tags = self._get_or_create_tags(tags_data)
-            instance.tags.set(tags)
+        instance.save()
 
         return instance
 

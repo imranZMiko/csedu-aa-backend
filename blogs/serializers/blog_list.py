@@ -4,8 +4,7 @@ from blogs.models import Blog
 
 class BlogListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
-    content_head = serializers.CharField(source='get_content_head')
-
+    content_head = serializers.SerializerMethodField()
     class Meta:
         model = Blog
         fields = ('id', 'user', 'title', 'content_head', 'created_at', 'updated_at')
