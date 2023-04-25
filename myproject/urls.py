@@ -43,4 +43,5 @@ urlpatterns = [
     path('', health_check),
     # path('accounts/', include("accounts.urls")),
     path('accounts/', include("users.urls")),
+    path('blogs/', include('blogs.urls'))
 ]

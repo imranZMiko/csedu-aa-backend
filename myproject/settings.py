@@ -30,11 +30,13 @@ RABBITMQ_URL = os.environ.get('RABBITMQ_URL')
 INSTALLED_APPS = [
     'base',
     'users',
+    'blogs',
     'rest_framework',
     'rest_framework.authtoken',
     # 'accounts',
     'drf_yasg',
     'corsheaders',
+    'bs4',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
