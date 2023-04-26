@@ -23,6 +23,7 @@ class LikeSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
 
     def get_user(self, obj):
         # Retrieve the user profile information for the comment's user
@@ -39,9 +40,16 @@ class CommentSerializer(serializers.ModelSerializer):
         # Retrieve the count of likes on the comment
         return obj.likes.count()
 
+    def get_is_liked(self, obj):
+        # Retrieve the current user from the request context
+        user = self.context['request'].user
+
+        # Check if the current user has liked the comment
+        return obj.likes.filter(user=user).exists()
+
     class Meta:
         model = Comment
-        fields = ('id', 'user', 'content', 'likes_count', 'created_at', 'updated_at')
+        fields = ('id', 'user', 'content', 'likes_count', 'is_liked', 'created_at', 'updated_at')
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,7 +62,8 @@ class BlogReadSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     user = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
-    comments_count = serializers.SerializerMethodField()  # Add comments_count field
+    comments_count = serializers.SerializerMethodField()  
+    is_liked = serializers.SerializerMethodField() 
 
     def get_user(self, obj):
         # Retrieve the user profile information for the blog's user
@@ -75,7 +84,15 @@ class BlogReadSerializer(serializers.ModelSerializer):
         # Retrieve the number of comments associated with the blog
         return obj.comments.count()  # Assuming comments is a related name for comments in the Blog model
 
+    def get_is_liked(self, obj):
+        # Check if the current user has liked the blog
+        user = self.context['request'].user
+        if user.is_authenticated:
+            # If user is authenticated, check if the user has liked the blog
+            return obj.likes.filter(user=user).exists()
+        return False  # If user is not authenticated, return False for is_liked field
+    
     class Meta:
         model = Blog
-        fields = ('id', 'user', 'title', 'tags', 'content', 'comments', 'likes', 'likes_count', 'comments_count', 'created_at', 'updated_at', 'cover_picture') 
+        fields = ('id', 'user', 'title', 'tags', 'content', 'comments', 'likes', 'likes_count', 'comments_count', 'created_at', 'updated_at', 'cover_picture', 'is_liked') 
         read_only_fields = ('id', 'user', 'comments', 'likes', 'likes_count', 'comments_count', 'created_at', 'updated_at')
