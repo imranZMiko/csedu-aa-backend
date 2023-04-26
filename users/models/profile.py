@@ -14,8 +14,8 @@ class Profile(models.Model):
         ('M', 'Male'),
         ('F', 'Female'),
     )
-    sex = models.CharField(max_length=1, choices=SEX_CHOICES, null=True, blank=True)
-    batch_number = models.IntegerField(null=True, blank=True)
+    sex = models.CharField(max_length=1, choices=SEX_CHOICES)
+    batch_number = models.IntegerField()
     registration_number = models.CharField(max_length=20, null=True, blank=True)
     hometown = models.CharField(max_length=100, null=True, blank=True)
     phone_number = models.CharField(max_length=20, null=True, blank=True)
