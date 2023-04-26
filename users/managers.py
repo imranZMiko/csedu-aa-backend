@@ -1,6 +1,5 @@
 from django.contrib.auth.models import BaseUserManager
 
-
 class UserManager(BaseUserManager):
     def create_user(self, username, email_address, password=None, referred_by=None, is_admin=False, is_superuser=False):
         if not username:
@@ -40,5 +39,22 @@ class UserManager(BaseUserManager):
 
         # Set the new password and save the user
         user.set_password(new_password)
+        user.save()
+        return user
+
+    def make_user_admin(self, user):
+        user.is_admin = True
+        user.save()
+        return user
+
+    def remove_user_adminship(self, user):
+        """
+        Remove adminship from a user.
+        Superusers cannot have their adminship removed.
+        """
+        if user.is_superuser:
+            raise ValueError("Cannot remove adminship from a superuser")
+        
+        user.is_admin = False
         user.save()
         return user

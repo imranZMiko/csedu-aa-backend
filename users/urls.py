@@ -7,6 +7,7 @@ urlpatterns = [
     path('login/', obtain_auth_token, name='token_obtain_pair'),  # Endpoint for obtaining an authentication token
     path('logout/',logout, name='logout'),  # Endpoint for logging out a user
     path('change-password/', views.ChangePasswordView.as_view(), name='change_password'),
+    path('manage-admin/', views.manage_admin, name='manage_admin'),  # API endpoint for managing admin status
 
     # User endpoints
     path('user/', views.SelfUserDetail.as_view(), name='user_self'),  # Endpoint for retrieving self user information
