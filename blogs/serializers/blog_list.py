@@ -7,9 +7,10 @@ class BlogListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     content_head = serializers.SerializerMethodField()
     tags = TagSerializer(many=True)
+
     class Meta:
         model = Blog
-        fields = ('id', 'user', 'title', 'tags', 'content_head', 'created_at', 'updated_at')
+        fields = ('id', 'user', 'title', 'tags', 'content_head', 'created_at', 'updated_at', 'cover_picture')
 
     def get_user(self, obj):
         # Return a serialized representation of the user (username, first_name, last_name)
