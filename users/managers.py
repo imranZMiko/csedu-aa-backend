@@ -28,3 +28,17 @@ class UserManager(BaseUserManager):
             is_superuser=True,
         )
         return user
+    
+    def change_password(self, user, old_password, new_password):
+        # Check if the old password matches the user's current password
+        if not user.check_password(old_password):
+            raise ValueError("Old password is incorrect")
+
+        # Check if the new password is the same as the old password
+        if old_password == new_password:
+            raise ValueError("New password cannot be the same as the old password")
+
+        # Set the new password and save the user
+        user.set_password(new_password)
+        user.save()
+        return user
