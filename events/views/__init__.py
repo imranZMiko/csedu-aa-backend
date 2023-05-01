@@ -1,2 +1,3 @@
 from .events import *
+from .guests import *
 from .event_managers import *
