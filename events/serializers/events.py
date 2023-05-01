@@ -9,6 +9,7 @@ class EventSerializer(serializers.ModelSerializer):
     """
     managers = SmallUserCardSerializer(many=True, read_only=True)
     guests = SmallUserCardSerializer(many=True, read_only=True)
+    creator = SmallUserCardSerializer(read_only=True)
 
     class Meta:
         model = Event

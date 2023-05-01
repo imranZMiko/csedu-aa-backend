@@ -3,12 +3,23 @@ from rest_framework.exceptions import PermissionDenied
 from events.models import Event
 from events.serializers import EventSerializer
 from events.managers import EventManager
-
+from rest_framework.pagination import PageNumberPagination
 
 class ListCreateEventAPI(generics.ListCreateAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
+    pagination_class = None
 
+    def get_queryset(self):
+        queryset = super().get_queryset().order_by('-start_datetime')
+        page_size = self.request.query_params.get('page_size', None)
+        
+        if page_size:
+            self.pagination_class = PageNumberPagination
+            self.pagination_class.page_size = int(page_size)
+        
+        return queryset
+    
     def get_permissions(self):
         if self.request.method == 'GET':
             return (permissions.IsAuthenticated(),)
