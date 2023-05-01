@@ -12,6 +12,11 @@ class ListCreateEventAPI(generics.ListCreateAPIView):
     serializer_class = EventSerializer
     pagination_class = None
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
     def get_queryset(self):
         queryset = super().get_queryset().order_by('-start_datetime')
         page_size = self.request.query_params.get('page_size', None)
@@ -44,6 +49,11 @@ class EventDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
     def check_permissions(self, request):
         """
