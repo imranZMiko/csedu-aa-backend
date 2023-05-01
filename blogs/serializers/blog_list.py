@@ -28,4 +28,9 @@ class BlogListSerializer(serializers.ModelSerializer):
         text = soup.get_text()  # Extract text from HTML
         words = text.split()  # Split the text by space
         summary = ' '.join(words[:10])  # Extract the first 10 words as the summary
+
+        # Add "..." at the end of the summary if there is more content remaining in the text
+        if len(words) > 10:
+            summary += "..."
+            
         return summary
