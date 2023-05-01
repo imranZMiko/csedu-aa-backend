@@ -51,6 +51,13 @@ class AcademicHistorySerializer(serializers.ModelSerializer):
         model = AcademicHistory
         fields = ('id', 'profile', 'institution_name', 'degree_name', 'concentration', 'start_date', 'graduation_date', 'is_currently_studying', 'result')
         read_only_fields = ('id', 'profile')
+    
+    def to_internal_value(self, data):
+        if data.get('start_date') == '':
+            data['start_date'] = None
+        if data.get('graduation_date') == '':
+            data['graduation_date'] = None
+        return super().to_internal_value(data)
 
     def validate(self, data):
         if self.instance and self.instance.profile.user != self.context['request'].user:
@@ -63,6 +70,13 @@ class WorkExperienceSerializer(serializers.ModelSerializer):
         model = WorkExperience
         fields = ('id', 'profile', 'company_name', 'branch', 'position', 'starting_date', 'ending_date', 'currently_working', 'description')
         read_only_fields = ('id', 'profile')
+    
+    def to_internal_value(self, data):
+        if data.get('starting_date') == '':
+            data['starting_date'] = None
+        if data.get('ending_date') == '':
+            data['ending_date'] = None
+        return super().to_internal_value(data)
 
     def validate(self, data):
         if self.instance and self.instance.profile.user != self.context['request'].user:
@@ -83,6 +97,10 @@ class FullProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email_address', 'first_name', 'last_name', 'profile_picture', 'date_of_birth', 'sex', 'batch_number', 'registration_number', 'hometown', 'phone_number', 'social_media_links', 'present_address', 'skills', 'academic_histories', 'work_experiences']
         read_only_fields = ['id', 'username', 'email']
 
+    def to_internal_value(self, data):
+        if data.get('date_of_birth') == '':
+            data['date_of_birth'] = None
+        return super().to_internal_value(data)
     
     def update(self, instance, validated_data):
         if self.partial:
