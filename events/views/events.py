@@ -18,7 +18,7 @@ class ListCreateEventAPI(generics.ListCreateAPIView):
         return context
 
     def get_queryset(self):
-        queryset = super().get_queryset().order_by('-start_datetime')
+        queryset = super().get_queryset().order_by('-start_datetime', 'end_datetime', 'pk')
         page_size = self.request.query_params.get('page_size', None)
         
         if page_size:
