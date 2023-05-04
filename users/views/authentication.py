@@ -16,7 +16,7 @@ from users.serializers import ReferralSerializer, ChangePasswordSerializer, User
 from users.managers import UserManager
 from mailing.models import CommonMailManager
 from django.template.loader import render_to_string
-import logging, smtplib
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,6 @@ class ReferralCreate(APIView):
 
     def post(self, request, format=None):
         serializer = ReferralSerializer(data=request.data)
-        logger.info("perform_create method called", extra={'request': self.request})
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         

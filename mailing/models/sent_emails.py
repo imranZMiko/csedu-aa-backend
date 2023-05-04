@@ -8,7 +8,9 @@ from django.utils import timezone
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMessage
+import logging
 
+logger = logging.getLogger(__name__)
 
 class CommonMailManager(models.Manager):
     def create_and_send_mail(self, sender, recipients, subject, body):
@@ -32,16 +34,15 @@ class CommonMailManager(models.Manager):
                 recipient, created = CommonEmailAddress.objects.get_or_create(email=email)
                 mail.recipients.add(recipient)
 
+            # logger.info(settings.EMAIL_HOST_USER)
             # Send the email using Django's send_mail function
             try:
                 send_mail(
                     subject=subject,
                     message=body,
-                    from_email=settings.EMAIL_HOST_USER,
+                    from_email= f"CSEDU Connect <{sender.email_address}>",
                     recipient_list=recipient_emails,
                     fail_silently=False,
-                    auth_user=settings.EMAIL_HOST_USER,
-                    auth_password=settings.EMAIL_HOST_PASSWORD,
                 )
             except smtplib.SMTPException as e:
                 # Set the is_sent flag to False to indicate that the email failed to send
