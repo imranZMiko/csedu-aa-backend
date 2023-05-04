@@ -4,12 +4,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from events.models import Event
-from events.serializers import EventSerializer
+from events.serializers import EventSerializer, EventListSerializer
 from events.managers import EventManager
 
 class ListCreateEventAPI(generics.ListCreateAPIView):
     queryset = Event.objects.all()
-    serializer_class = EventSerializer
+    serializer_class = EventListSerializer
     pagination_class = None
 
     def get_serializer_context(self):
