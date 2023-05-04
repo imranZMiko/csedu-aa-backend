@@ -45,5 +45,6 @@ urlpatterns = [
     path('accounts/', include("users.urls")),
     path('blogs/', include('blogs.urls')),
     path('events/', include('events.urls')),
-    path('mails/', include('mailing.urls'))
+    path('mails/', include('mailing.urls')),
+    path('cards/', include('cards.urls'))
 ]
