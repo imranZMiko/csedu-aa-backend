@@ -24,6 +24,14 @@ DB_PORT = int(os.environ.get('DB_PORT'))
 REDIS_HOST = os.environ.get('REDIS_HOST')
 RABBITMQ_URL = os.environ.get('RABBITMQ_URL')
 
+# Email variables
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+
 
 # Application definition
 
@@ -32,6 +40,7 @@ INSTALLED_APPS = [
     'users',
     'blogs',
     'events',
+    'mailing',
     'rest_framework',
     'rest_framework.authtoken',
     # 'accounts',
@@ -72,7 +81,9 @@ ROOT_URLCONF = 'myproject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'mailing/templates'
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -109,6 +120,24 @@ DATABASES = {
         'HOST': DB_HOST,
         'PORT': DB_PORT,
     }
+}
+
+# Logging
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
 }
 
 

@@ -14,6 +14,12 @@ from rest_framework.permissions import IsAuthenticated
 from users.models import Referral, User
 from users.serializers import ReferralSerializer, ChangePasswordSerializer, UserSerializer
 from users.managers import UserManager
+from mailing.models import CommonMailManager
+from django.template.loader import render_to_string
+import logging, smtplib
+
+logger = logging.getLogger(__name__)
+
 
 @csrf_exempt
 @api_view(["POST"])
@@ -44,13 +50,44 @@ def logout(request):
     request.auth.delete()
     return Response({'detail': 'Successfully logged out.'})
 
-class ReferralCreate(generics.CreateAPIView):
+
+class ReferralCreate(APIView):
     queryset = Referral.objects.all()
-    serializer_class = ReferralSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
-        serializer.save(referrer=self.request.user)
+    def post(self, request, format=None):
+        serializer = ReferralSerializer(data=request.data)
+        logger.info("perform_create method called", extra={'request': self.request})
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        referral = serializer.save(referrer=self.request.user)
+        referred_email = referral.referred_email
+        referral_code = referral.referral_code
+        referrer_first_name = referral.referrer.profile.first_name
+        referrer_last_name = referral.referrer.profile.last_name
+
+        # Send email to referred user
+        mail_manager = CommonMailManager()
+        sender = self.request.user
+        recipients = referred_email
+        subject = 'You have been referred!'
+        context = {
+            'referral_code': referral_code,
+            'referrer_first_name' : referrer_first_name,
+            'referrer_last_name' : referrer_last_name,
+            }
+        body = render_to_string('referral_email.html', context)
+        # logger.info(f"{body}", extra={'request': self.request})
+        try:
+            mail_manager.create_and_send_mail(sender, recipients, subject, body)
+        except Exception as e:
+            referral.delete()
+            logger.error(str(e), exc_info=True, extra={'request': self.request})
+            return Response({'error': 'An error occurred while sending the email'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Send success message to requesting user
+        return Response({'message': 'Referral sent successfully!'})
 
 
 class ChangePasswordView(APIView):
