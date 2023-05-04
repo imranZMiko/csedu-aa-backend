@@ -1,20 +1,15 @@
 from rest_framework import serializers
 from mailing.models import SystemMail, UserMail
 from users.serializers import SmallUserCardSerializer
+from mailing.serializers.email import CommonEmailAddressSerializer
 
 class SystemMailSerializer(serializers.ModelSerializer):
     sender = SmallUserCardSerializer(read_only = True)
-    recipient_emails = serializers.SerializerMethodField(read_only = True)
+    recipients = CommonEmailAddressSerializer(read_only = True, many = True)
 
     class Meta:
         model = SystemMail
         fields = '__all__'
-
-    def get_recipient_emails(self, obj):
-        """
-        Returns a list of recipient email addresses for the given SystemMail instance.
-        """
-        return list(obj.recipients.values_list('email', flat=True))
     
     def to_representation(self, instance):
         """

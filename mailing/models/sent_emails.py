@@ -13,14 +13,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 class SystemMailManager(models.Manager):
-    def create_and_send_mail(self, recipients, subject, body, is_mail_private = True):
+    def create_and_send_mail(self, recipient_emails, subject, body, is_mail_private = True):
         """
         Creates a new SystemMail instance and sends it using Django's send_mail function.
         Returns the newly created SystemMail instance.
         """
         try:
-            # Split the recipients string into a list of email addresses
-            recipient_emails = [email.strip() for email in re.split(r'[;, ]+', recipients) if email.strip()]
+            # # Split the recipients string into a list of email addresses
+            # recipient_emails = [email.strip() for email in re.split(r'[;, ]+', recipients) if email.strip()]
 
             # Validate the email addresses
             for email in recipient_emails:
@@ -98,7 +98,7 @@ class UserMailManager(models.Manager):
             send_mail(
                 subject=subject,
                 message=body,
-                from_email= f"CSEDU Connect <{settings.EMAIL_HOST_USER}>",
+                from_email= f"{sender.profile.first_name} from CSEDU Connect <{sender.email_address}>",
                 recipient_list=[recipient.email_address for recipient in recipients],
                 fail_silently=False,
             )

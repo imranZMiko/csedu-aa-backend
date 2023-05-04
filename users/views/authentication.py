@@ -69,7 +69,7 @@ class ReferralCreate(APIView):
         # Send email to referred user
         mail_manager = SystemMailManager()
         # sender = self.request.user
-        recipients = referred_email
+        recipients = [referred_email]
         subject = 'You have been referred!'
         context = {
             'referral_code': referral_code,

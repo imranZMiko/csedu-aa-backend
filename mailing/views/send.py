@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from users.models import User
-from mailing.models import UserMail
+from mailing.models import UserMail, SystemMail
 from mailing.serializers import UserMailSendingSerializer, UserMailMultipleSendingSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import NotFound
@@ -55,8 +55,8 @@ class AdminSendEmailToMultipleUser(APIView):
             raise NotFound('No valid recipients found')
 
         try:
-            mail = UserMail.objects.create_and_send_mail(
-                sender=sender, recipients=recipients, subject=subject, body=body, is_mail_private=False)
+            mail = SystemMail.objects.create_and_send_mail(
+                recipients=[recipient.email_address for recipient in recipients], subject=subject, body=body, is_mail_private=False)
             serialized_mail = UserMailMultipleSendingSerializer(mail)
             return Response(serialized_mail.data, status=status.HTTP_201_CREATED)
         except Exception as e:
