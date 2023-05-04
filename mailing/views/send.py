@@ -56,7 +56,7 @@ class AdminSendEmailToMultipleUser(APIView):
 
         try:
             mail = SystemMail.objects.create_and_send_mail(
-                recipients=[recipient.email_address for recipient in recipients], subject=subject, body=body, is_mail_private=False)
+                recipient_emails=[recipient.email_address for recipient in recipients], subject=subject, body=body, is_mail_private=False)
             serialized_mail = UserMailMultipleSendingSerializer(mail)
             return Response(serialized_mail.data, status=status.HTTP_201_CREATED)
         except Exception as e:
