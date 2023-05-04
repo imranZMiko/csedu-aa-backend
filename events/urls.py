@@ -11,5 +11,11 @@ urlpatterns = [
     path('<int:pk>/managers/<str:username>/', views.EventManagersDeleteAPIView.as_view(), name='remove_event_manager'),
     # URL pattern for subscribing or unsubscribing a user to an event
     path('<int:event_id>/subscribe/', views.EventSubscriptionView.as_view(), name='event-subscription'),
+
+    # Endpoint for creating a new event announcement and listing all announcements for an event
+    path('<int:event_id>/announcements/', views.EventAnnouncementListCreateView.as_view(), name='event-announcements'),
+
+    # Endpoint for retrieving, updating, and deleting a single event announcement
+    path('<int:event_id>/announcements/<int:pk>/', views.EventAnnouncementRetrieveUpdateDestroyView.as_view(), name='event-announcement-detail'),
 ]
 
