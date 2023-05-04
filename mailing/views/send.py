@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 
 class SendEmailToUser(APIView):
     permission_classes = [IsAuthenticated]
@@ -23,6 +24,12 @@ class SendEmailToUser(APIView):
             sender = request.user
             subject = serializer.validated_data['subject']
             body = serializer.validated_data['body']
+
+            body = render_to_string('user_email.html', context = {
+                'body': body,
+                'sender_info' : f'{sender.profile.first_name} {sender.profile.last_name} from Batch {sender.profile.batch_number}',
+            })
+            
             is_mail_private = serializer.validated_data.get('is_mail_private', True)
             
             try:
@@ -45,7 +52,10 @@ class AdminSendEmailToMultipleUser(APIView):
         sender = request.user
         subject = serializer.validated_data['subject']
         body = serializer.validated_data['body']
-
+        body = render_to_string('admin_email.html', context = {
+                'body': body,
+                'sender_info' : f'{sender.profile.first_name} {sender.profile.last_name} from Batch {sender.profile.batch_number}',
+            })
         recipients = []
         for username in recipient_usernames:
             recipient = get_object_or_404(User, username=username)
