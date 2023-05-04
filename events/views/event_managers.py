@@ -4,7 +4,7 @@ from events.models import Event
 from users.models import User
 from rest_framework.exceptions import NotFound, PermissionDenied
 
-class EventManagersAPI(generics.GenericAPIView):
+class EventManagersAddAPIView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_event(self, pk):
@@ -35,29 +35,38 @@ class EventManagersAPI(generics.GenericAPIView):
         event.managers.add(*users)
         return Response({'detail': 'Managers added successfully.'}, status=status.HTTP_200_OK)
 
-    def delete(self, request, pk):
-        event = self.get_event(pk)
-        self.check_user_permission(event, request.user)
 
-        username = request.data.get('username')
+class EventManagersDeleteAPIView(generics.DestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-        if not username:
-            return Response({'detail': 'Username is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    def get_event(self, pk):
+        try:
+            return Event.objects.get(pk=pk)
+        except Event.DoesNotExist:
+            raise NotFound('Event not found.')
 
+    def check_user_permission(self, event, user):
+        if not event.managers.filter(pk=user.pk).exists():
+            raise PermissionDenied('You do not have permission to manage this event.')
+
+    def get_object(self):
+        event = self.get_event(self.kwargs['pk'])
+        self.check_user_permission(event, self.request.user)
+        username = self.kwargs['username']
         try:
             user_to_remove = User.objects.get(username=username)
         except User.DoesNotExist:
-            return Response({'detail': 'User does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if user_to_remove == request.user:
-            return Response({'detail': 'You cannot remove yourself from managers.'}, status=status.HTTP_400_BAD_REQUEST)
-
+            raise NotFound('User not found.')
+        if user_to_remove == self.request.user:
+            raise PermissionDenied('You cannot remove yourself from managers.')
         if user_to_remove == event.creator:
-            return Response({'detail': 'You cannot remove the creator from managers.'}, status=status.HTTP_400_BAD_REQUEST)
-
+            raise PermissionDenied('You cannot remove the creator from managers.')
         if not event.managers.filter(pk=user_to_remove.pk).exists():
-            return Response({'detail': 'User is not a manager of this event.'}, status=status.HTTP_400_BAD_REQUEST)
+            raise NotFound('User is not a manager of this event.')
+        return user_to_remove
 
-        event.managers.remove(user_to_remove)
-        return Response({'detail': 'Manager removed successfully.'}, status=status.HTTP_200_OK)
+    def delete(self, request, *args, **kwargs):
+        event = self.get_event(self.kwargs['pk'])
+        self.check_user_permission(event, self.request.user)
+        return self.destroy(request, *args, **kwargs)
 
