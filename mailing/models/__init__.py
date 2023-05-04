@@ -1,2 +1,2 @@
-from .sent_emails import CommonMail, CommonMailManager, UserMail, UserMailManager
+from .sent_emails import SystemMail, SystemMailManager, UserMail, UserMailManager
 from .email import CommonEmailAddress

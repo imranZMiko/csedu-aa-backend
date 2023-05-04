@@ -2,21 +2,21 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.db import models
 from users.models import User
+from base.models import BaseModel
 from mailing.models.email import CommonEmailAddress
 import smtplib, re
 from django.utils import timezone
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from django.core.mail import EmailMessage
 import logging
 
 logger = logging.getLogger(__name__)
 
-class CommonMailManager(models.Manager):
-    def create_and_send_mail(self, sender, recipients, subject, body):
+class SystemMailManager(models.Manager):
+    def create_and_send_mail(self, recipients, subject, body, is_mail_private = True):
         """
-        Creates a new CommonMail instance and sends it using Django's send_mail function.
-        Returns the newly created CommonMail instance.
+        Creates a new SystemMail instance and sends it using Django's send_mail function.
+        Returns the newly created SystemMail instance.
         """
         try:
             # Split the recipients string into a list of email addresses
@@ -26,8 +26,8 @@ class CommonMailManager(models.Manager):
             for email in recipient_emails:
                 validate_email(email)
 
-            # Create a new CommonMail instance
-            mail = CommonMail.objects.create(sender=sender, subject=subject, body=body, sent_at=None)
+            # Create a new SystemMail instance
+            mail = SystemMail.objects.create(subject=subject, body=body, sent_at=None, is_mail_private = is_mail_private)
 
             # Add recipients to the mail instance
             for email in recipient_emails:
@@ -40,10 +40,11 @@ class CommonMailManager(models.Manager):
                 send_mail(
                     subject=subject,
                     message=body,
-                    from_email= f"CSEDU Connect <{sender.email_address}>",
+                    from_email= f"CSEDU Connect <{settings.EMAIL_HOST_USER}>",
                     recipient_list=recipient_emails,
                     fail_silently=False,
                 )
+
             except smtplib.SMTPException as e:
                 # Set the is_sent flag to False to indicate that the email failed to send
                 mail.is_sent = False
@@ -60,21 +61,22 @@ class CommonMailManager(models.Manager):
         except ValidationError as e:
             raise ValueError(str(e))
 
-class CommonMail(models.Model):
-    sender = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sent_common_mails')
+class SystemMail(models.Model):
+    # sender = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sent_common_mails')
     recipients = models.ManyToManyField(CommonEmailAddress, related_name='received_common_mails')
     subject = models.CharField(max_length=255)
     body = models.TextField()
     sent_at = models.DateTimeField(null=True)
     is_sent = models.BooleanField(default=False)
+    is_mail_private = models.BooleanField(default=True)
 
-    objects = CommonMailManager()
+    objects = SystemMailManager()
 
     def __str__(self):
         return f'{self.sent_at} - {self.sender.username} - {self.subject}'
 
 class UserMailManager(models.Manager):
-    def create_and_send_mail(self, sender, usernames, subject, body):
+    def create_and_send_mail(self, sender, usernames, subject, body, is_mail_private = True):
         """
         Creates a new UserMail instance and sends it to the specified users using Django's send_mail function.
         Returns the newly created UserMail instance.
@@ -87,18 +89,18 @@ class UserMailManager(models.Manager):
             raise ValueError('One or more usernames were not found.')
 
         # Create a new UserMail instance
-        mail = UserMail.objects.create(sender=sender, recipients=usernames, subject=subject, body=body, sent_at=None)
+        mail = UserMail.objects.create(sender=sender, subject=subject, body=body, sent_at=None, is_mail_private = is_mail_private)
 
-        # Send the email using Django's send_mail function
+        for recipient in recipients:
+            mail.recipients.add(recipient)
+
         try:
             send_mail(
                 subject=subject,
                 message=body,
-                from_email=settings.EMAIL_HOST_USER,
+                from_email= f"CSEDU Connect <{settings.EMAIL_HOST_USER}>",
                 recipient_list=[recipient.email_address for recipient in recipients],
                 fail_silently=False,
-                auth_user=settings.EMAIL_HOST_USER,
-                auth_password=settings.EMAIL_HOST_PASSWORD,
             )
         except smtplib.SMTPException as e:
             # Set the is_sent flag to False to indicate that the email failed to send
@@ -113,13 +115,14 @@ class UserMailManager(models.Manager):
 
         return mail
 
-class UserMail(models.Model):
+class UserMail(BaseModel):
     sender = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sent_user_mails')
     recipients = models.ManyToManyField(User, related_name='received_user_mails')
     subject = models.CharField(max_length=255)
     body = models.TextField()
     sent_at = models.DateTimeField(null=True)
     is_sent = models.BooleanField(default=False)
+    is_mail_private = models.BooleanField(default=True)
 
     objects = UserMailManager()
 
