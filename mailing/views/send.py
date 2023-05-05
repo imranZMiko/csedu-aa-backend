@@ -29,7 +29,7 @@ class SendEmailToUser(APIView):
                 'body': body,
                 'sender_info' : f'{sender.profile.first_name} {sender.profile.last_name} from Batch {sender.profile.batch_number}',
             })
-            
+
             is_mail_private = serializer.validated_data.get('is_mail_private', True)
             
             try:
@@ -65,8 +65,8 @@ class AdminSendEmailToMultipleUser(APIView):
             raise NotFound('No valid recipients found')
 
         try:
-            mail = SystemMail.objects.create_and_send_mail(
-                recipient_emails=[recipient.email_address for recipient in recipients], subject=subject, body=body, is_mail_private=False)
+            mail = UserMail.objects.create_and_send_mail(
+                sender = sender, usernames=[recipient.username for recipient in recipients], subject=subject, body=body, is_mail_private=False)
             serialized_mail = UserMailMultipleSendingSerializer(mail)
             return Response(serialized_mail.data, status=status.HTTP_201_CREATED)
         except Exception as e:

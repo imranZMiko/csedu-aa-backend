@@ -32,7 +32,7 @@ class Event(BaseModel):
     cover_picture = models.URLField(blank=True, null=True)
     managers = models.ManyToManyField('users.User', related_name='managed_events')
     guests = models.ManyToManyField('users.User', related_name='attending_events')
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, editable=False, related_name='created_events')
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, editable=False, related_name='created_events')
 
     objects = EventManager()
 

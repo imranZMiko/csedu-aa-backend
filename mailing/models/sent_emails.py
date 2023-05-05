@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class SystemMailManager(models.Manager):
-    def create_and_send_mail(self, recipient_emails, subject, body, is_mail_private = True):
+    def create_and_send_mail(self, sender, recipient_emails, subject, body, is_mail_private = True):
         """
         Creates a new SystemMail instance and sends it using Django's send_mail function.
         Returns the newly created SystemMail instance.
@@ -27,7 +27,7 @@ class SystemMailManager(models.Manager):
                 validate_email(email)
 
             # Create a new SystemMail instance
-            mail = SystemMail.objects.create(subject=subject, body=body, sent_at=None, is_mail_private = is_mail_private)
+            mail = SystemMail.objects.create(subject=subject, sender = sender, body=body, sent_at=None, is_mail_private = is_mail_private)
 
             # Add recipients to the mail instance
             for email in recipient_emails:
@@ -62,7 +62,7 @@ class SystemMailManager(models.Manager):
             raise ValueError(str(e))
 
 class SystemMail(models.Model):
-    # sender = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sent_common_mails')
+    sender = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='sent_common_mails')
     recipients = models.ManyToManyField(CommonEmailAddress, related_name='received_common_mails')
     subject = models.CharField(max_length=255)
     body = models.TextField()
@@ -116,7 +116,7 @@ class UserMailManager(models.Manager):
         return mail
 
 class UserMail(BaseModel):
-    sender = models.ForeignKey(User, on_delete=models.PROTECT, related_name='sent_user_mails')
+    sender = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='sent_user_mails')
     recipients = models.ManyToManyField(User, related_name='received_user_mails')
     subject = models.CharField(max_length=255)
     body = models.TextField()

@@ -68,7 +68,7 @@ class ReferralCreate(APIView):
 
         # Send email to referred user
         mail_manager = SystemMailManager()
-        # sender = self.request.user
+        sender = self.request.user
         recipients = [referred_email]
         subject = 'You have been referred!'
         context = {
@@ -79,7 +79,7 @@ class ReferralCreate(APIView):
         body = render_to_string('referral_email.html', context)
         # logger.info(f"{body}", extra={'request': self.request})
         try:
-            mail_manager.create_and_send_mail(recipients, subject, body)
+            mail_manager.create_and_send_mail(sender, recipients, subject, body)
         except Exception as e:
             referral.delete()
             logger.error(str(e), exc_info=True, extra={'request': self.request})
