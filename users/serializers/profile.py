@@ -86,6 +86,8 @@ class WorkExperienceSerializer(serializers.ModelSerializer):
 class FullProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     email_address = serializers.EmailField(source='user.email_address', read_only=True)
+    is_admin = serializers.BooleanField(source='user.is_admin', read_only=True)
+    is_superuser = serializers.BooleanField(source='user.is_superuser' , read_only= True)
     social_media_links = SocialMediaLinkSerializer(many=True, required=False)
     present_address = PresentAddressSerializer(required=False)
     skills = SkillSerializer(many=True, required=False)
@@ -94,13 +96,20 @@ class FullProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['id', 'username', 'email_address', 'first_name', 'last_name', 'profile_picture', 'date_of_birth', 'sex', 'batch_number', 'registration_number', 'hometown', 'phone_number', 'social_media_links', 'present_address', 'skills', 'academic_histories', 'work_experiences']
+        fields = ['id', 'username', 'email_address', 'first_name', 'last_name', 'profile_picture', 'is_admin','is_superuser','date_of_birth', 'sex', 'batch_number', 'registration_number', 'hometown', 'phone_number', 'social_media_links', 'present_address', 'skills', 'academic_histories', 'work_experiences']
         read_only_fields = ['id', 'username', 'email']
 
     def to_internal_value(self, data):
         if data.get('date_of_birth') == '':
             data['date_of_birth'] = None
         return super().to_internal_value(data)
+    
+    def to_representation(self, instance):
+        user = self.context.get('request').user
+        data = super().to_representation(instance)
+        if instance.user != user:
+            data.pop('is_superuser')
+        return data
     
     def update(self, instance, validated_data):
         if self.partial:
