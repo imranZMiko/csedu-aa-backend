@@ -41,6 +41,16 @@ class UserMailList(ListAPIView):
     def get_queryset(self):
         queryset = UserMail.objects.all()
 
+        # Get the sender username from query parameter
+        sender_username = self.request.query_params.get('sender', None)
+        if sender_username:
+            queryset = queryset.filter(sender__username=sender_username)
+
+        # Get the recipients username from query parameter
+        recipient_username = self.request.query_params.get('recipient', None)
+        if recipient_username:
+            queryset = queryset.filter(recipients__username=recipient_username)
+
         page_size = self.request.query_params.get('page_size', None)
         
         if page_size :
@@ -73,6 +83,11 @@ class UserSentMailList(ListAPIView):
 
     def get_queryset(self):
         queryset = UserMail.objects.filter(sender=self.request.user)
+
+        # Get the recipients username from query parameter
+        recipient_username = self.request.query_params.get('recipient', None)
+        if recipient_username:
+            queryset = queryset.filter(recipients__username=recipient_username)
 
         page_size = self.request.query_params.get('page_size', None)
         

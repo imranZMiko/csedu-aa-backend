@@ -7,3 +7,4 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ['-created_at']  # default ordering by created_at in descending order (latest first)
