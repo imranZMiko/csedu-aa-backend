@@ -8,7 +8,7 @@ from rest_framework import status
 from users.models import User, Profile
 from users.serializers import UserSerializer, ProfileSerializer
 from rest_framework.pagination import PageNumberPagination
-
+from fuzzywuzzy import fuzz
 
 User = get_user_model()
 
@@ -77,6 +77,31 @@ class UserList(generics.ListAPIView):
         country = self.request.query_params.get('city', None)
         city = self.request.query_params.get('country', None)
         hometown = self.request.query_params.get('hometown', None)
+        username = self.request.query_params.get('username', None)
+        full_name = self.request.query_params.get('name', None)
+
+        if username:
+            threshold = 50 # set a threshold for the matching score
+            matching_users = []
+            for user in queryset:
+                score = fuzz.token_sort_ratio(username, user.username) # calculate the matching score
+                if score >= threshold:
+                    matching_users.append((user, score))
+            matching_users.sort(key=lambda x: x[1], reverse=True) # sort by the matching score in descending order
+            queryset = [user for user, score in matching_users]
+
+        if full_name:
+            threshold = 50 # set a threshold for the matching score
+            matching_users = []
+            for user in queryset:
+                try:
+                    score = fuzz.token_sort_ratio(full_name, f"{user.profile.first_name} {user.profile.last_name}") # calculate the matching score
+                    if score >= threshold:
+                        matching_users.append((user, score))
+                except:
+                    pass
+            matching_users.sort(key=lambda x: x[1], reverse=True) # sort by the matching score in descending order
+            queryset = [user for user, score in matching_users]
 
         if batch_number:
             queryset = queryset.filter(profile__batch_number=batch_number)
@@ -98,8 +123,3 @@ class UserList(generics.ListAPIView):
             self.pagination_class = None
 
         return queryset
-
-
-
-
-

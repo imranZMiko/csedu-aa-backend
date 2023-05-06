@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'bs4',
+    'fuzzywuzzy',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
