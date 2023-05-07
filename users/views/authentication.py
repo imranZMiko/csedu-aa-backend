@@ -29,9 +29,21 @@ def obtain_auth_token(request):
     Obtain a token for a user.
     """
     username = request.data.get("username")
+    email = request.data.get("email_address")
     password = request.data.get("password")
 
-    user = authenticate(username=username, password=password)
+    if username:
+        user = authenticate(username=username, password=password)
+    elif email:
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            user = None
+        if user and not user.check_password(password):
+            user = None
+    else:
+        user = None
+
     if not user:
         return Response({
             'error': 'Invalid credentials'
@@ -39,6 +51,7 @@ def obtain_auth_token(request):
 
     token, created = Token.objects.get_or_create(user=user)
     return Response({'token': token.key})
+
 
 @api_view(["POST"])
 @authentication_classes([TokenAuthentication])
