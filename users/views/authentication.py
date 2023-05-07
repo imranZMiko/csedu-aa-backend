@@ -110,12 +110,12 @@ class ChangePasswordView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST', 'DELETE'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def manage_admin(request):
+def make_admin(request):
     """
-    API endpoint to make or remove a user's admin status.
-    Only superusers can access DELETE method, while both superusers and admins can access POST method.
+    API endpoint to make a user an admin.
+    Only superusers and admins can access this method.
     """
     try:
         # Get username from request
@@ -128,24 +128,44 @@ def manage_admin(request):
         # Check if user exists
         user = User.objects.get(username=username)
         
-        # Perform action based on HTTP method
-        if request.method == 'POST':
-            # Check if the logged in user is an admin
-            if not request.user.is_superuser and not request.user.is_admin:
-                return Response({'error': 'Only superusers and admins can make a user an admin'}, status=status.HTTP_403_FORBIDDEN)
-            # Make user an admin
-            UserManager().make_user_admin(user)
-        elif request.method == 'DELETE':
-            # Check if the logged in user is a superuser
-            if not request.user.is_superuser:
-                return Response({'error': 'Only superusers can remove adminship from a user'}, status=status.HTTP_403_FORBIDDEN)
-            # Check if user is a superuser
-            if user.is_superuser:
-                return Response({'error': 'Cannot remove adminship from a superuser'}, status=status.HTTP_400_BAD_REQUEST)
-            # Remove adminship from user
-            UserManager().remove_user_adminship(user)
-        else:
-            return Response({'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+        # Check if the logged in user is an admin
+        if not request.user.is_superuser and not request.user.is_admin:
+            return Response({'error': 'Only superusers and admins can make a user an admin'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Make user an admin
+        UserManager().make_user_admin(user)
+        
+        # Serialize and return user data
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def remove_admin(request, username):
+    """
+    API endpoint to remove adminship from a user.
+    Only superusers can access this method.
+    """
+    try:
+        # Check if user exists
+        user = User.objects.get(username=username)
+        
+        # Check if the logged in user is a superuser
+        if not request.user.is_superuser:
+            return Response({'error': 'Only superusers can remove adminship from a user'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Check if user is a superuser
+        if user.is_superuser:
+            return Response({'error': 'Cannot remove adminship from a superuser'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Remove adminship from user
+        UserManager().remove_user_adminship(user)
         
         # Serialize and return user data
         serializer = UserSerializer(user)
