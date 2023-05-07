@@ -9,9 +9,9 @@ urlpatterns = [
     path('change-password/', views.ChangePasswordView.as_view(), name='change_password'), # endpoint for changing password
     
     # Endpoint to make a user an admin
-    path('make_admin/', views.make_admin, name='make_admin'),
+    path('make-admin/', views.make_admin, name='make_admin'),
     # Endpoint to remove adminship from a user
-    path('remove_admin/<str:username>/', views.remove_admin, name='remove_admin'),
+    path('remove-admin/<str:username>/', views.remove_admin, name='remove_admin'),
 
     # User endpoints
     path('user/', views.SelfUserDetail.as_view(), name='user_self'),  # Endpoint for retrieving self user information
