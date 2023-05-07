@@ -93,7 +93,7 @@ class BlogReadSerializer(serializers.ModelSerializer):
             return obj.likes.filter(user=user).exists()
         return False  # If user is not authenticated, return False for is_liked field
     
-    def get_is_liked(self, obj):
+    def get_can_delete(self, obj):
         # Check if the current user can delete the blog
         user = self.context['request'].user
         if user != obj.user and not user.is_superuser :
