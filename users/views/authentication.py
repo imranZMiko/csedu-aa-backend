@@ -29,14 +29,14 @@ def obtain_auth_token(request):
     Obtain a token for a user.
     """
     username = request.data.get("username")
-    email = request.data.get("email_address")
+    email = request.data.get("email")
     password = request.data.get("password")
 
     if username:
         user = authenticate(username=username, password=password)
     elif email:
         try:
-            user = User.objects.get(email=email)
+            user = User.objects.get(email_address=email)
         except User.DoesNotExist:
             user = None
         if user and not user.check_password(password):
