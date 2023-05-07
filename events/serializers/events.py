@@ -59,7 +59,6 @@ class EventListSerializer(EventSerializer):
     """
     Serializer for list of events without managers, guests, and announcements.
     """
-    managers = None
     guests = None
     announcements = None
 
