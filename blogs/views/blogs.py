@@ -52,8 +52,8 @@ class BlogUpdateRetrieveDestroyView(generics.RetrieveUpdateDestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         # Override destroy method to check if the request user is the owner of the blog
         instance = self.get_object()
-        if instance.user != request.user:
-            raise PermissionDenied("You can only delete your own blog.")
+        if instance.user != request.user and not request.user.is_superuser:
+            raise PermissionDenied("You can only delete your own blog except when you're a superuser.")
         return super().destroy(request, *args, **kwargs)
 
 class BlogCreateView(generics.CreateAPIView):
