@@ -65,4 +65,4 @@ class EventListSerializer(EventSerializer):
 
     class Meta:
         model = Event
-        exclude = ('managers', 'guests')
+        exclude = ('guests')
