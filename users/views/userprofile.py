@@ -81,7 +81,7 @@ class UserList(generics.ListAPIView):
         full_name = self.request.query_params.get('name', None)
 
         if username:
-            threshold = 50 # set a threshold for the matching score
+            threshold = 20 # set a threshold for the matching score
             matching_users = []
             for user in queryset:
                 score = fuzz.token_sort_ratio(username, user.username) # calculate the matching score
@@ -91,7 +91,7 @@ class UserList(generics.ListAPIView):
             queryset = [user for user, score in matching_users]
 
         if full_name:
-            threshold = 50 # set a threshold for the matching score
+            threshold = 20 # set a threshold for the matching score
             matching_users = []
             for user in queryset:
                 try:
