@@ -9,6 +9,11 @@ class BlogListAPIView(generics.ListAPIView):
     serializer_class = BlogListSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_serializer_context(self):
+        # Pass the context to the serializer
+        context = super().get_serializer_context()
+        return context
+
     def get_queryset(self):
         queryset = Blog.objects.all()
         tag_slugs = self.request.query_params.getlist('tags__slug', [])

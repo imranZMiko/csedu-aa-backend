@@ -5,12 +5,13 @@ from .blog_read import TagSerializer
 
 class BlogListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
-    content_head = serializers.SerializerMethodField()
+    content_head = serializers.SerializerMethodField(read_only = True)
     tags = TagSerializer(many=True)
+    can_delete = serializers.SerializerMethodField(read_only = True) 
 
     class Meta:
         model = Blog
-        fields = ('id', 'user', 'title', 'tags', 'content_head', 'created_at', 'updated_at', 'cover_picture')
+        fields = ('id', 'user', 'title', 'tags', 'content_head', 'created_at', 'updated_at', 'cover_picture', 'can_delete')
 
     def get_user(self, obj):
         # Return a serialized representation of the user (username, first_name, last_name)
@@ -20,6 +21,13 @@ class BlogListSerializer(serializers.ModelSerializer):
             'first_name': user.profile.first_name,
             'last_name': user.profile.last_name
         }
+    
+    def get_can_delete(self, obj):
+        # Check if the current user can delete the blog
+        user = self.context['request'].user
+        if user != obj.user and not user.is_superuser :
+            return False  
+        return True
 
     def get_content_head(self, obj):
         # Extract text from HTML content and generate a summary
