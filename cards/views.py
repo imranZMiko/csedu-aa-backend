@@ -11,7 +11,7 @@ class CardListCreateView(generics.ListCreateAPIView):
     def get_permissions(self):
         if self.request.method == 'POST':
             return [permissions.IsAuthenticated(), permissions.IsAdminUser()]
-        return [permissions.IsAuthenticated()]
+        return []
 
     def perform_create(self, serializer):
         serializer.save()

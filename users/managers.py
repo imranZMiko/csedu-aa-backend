@@ -1,7 +1,7 @@
 from django.contrib.auth.models import BaseUserManager
 
 class UserManager(BaseUserManager):
-    def create_user(self, username, email_address, password=None, referred_by=None, is_admin=False, is_superuser=False):
+    def create_user(self, username, email_address, password=None, referred_by=None, is_admin=False, is_superuser=False, is_pending=True):
         if not username:
             raise ValueError("Users must have a username")
         if not email_address:
@@ -12,6 +12,7 @@ class UserManager(BaseUserManager):
             referred_by=referred_by,
             is_admin=is_admin,
             is_superuser=is_superuser,
+            is_pending=is_pending,
         )
         user.set_password(password)
         user.save(using=self._db)
@@ -25,6 +26,7 @@ class UserManager(BaseUserManager):
             referred_by=referred_by,
             is_admin=True,
             is_superuser=True,
+            is_pending=False,
         )
         return user
     
@@ -58,3 +60,9 @@ class UserManager(BaseUserManager):
         user.is_admin = False
         user.save()
         return user
+
+    def accept_pending(self, user):
+        user.is_pending = False
+        user.save()
+        return user
+    

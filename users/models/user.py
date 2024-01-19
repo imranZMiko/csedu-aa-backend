@@ -10,6 +10,7 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     referred_by = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True)
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    is_pending = models.BooleanField(default=True)
 
     # Custom validator for the username field
     def validate_username(value):

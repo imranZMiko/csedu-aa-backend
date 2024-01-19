@@ -48,6 +48,10 @@ def obtain_auth_token(request):
         return Response({
             'error': 'Invalid credentials'
         }, status=status.HTTP_401_UNAUTHORIZED)
+    if user.is_pending:
+        return Response({
+            'error': 'Registration pending'
+        }, status=status.HTTP_403_FORBIDDEN)
 
     token, created = Token.objects.get_or_create(user=user)
     return Response({'token': token.key})
@@ -179,6 +183,35 @@ def remove_admin(request, username):
         
         # Remove adminship from user
         UserManager().remove_user_adminship(user)
+        
+        # Serialize and return user data
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def accept_pending(request, username):
+    """
+    API endpoint to accept or decline a pending user.
+    Only superusers can access this method.
+    """
+    try:
+        # Check if user exists
+        user = User.objects.get(username=username)
+
+        is_accepted = request.data.get("accept")
+        
+        if is_accepted:
+            # Remove adminship from user
+            UserManager().accept_pending(user)
+        else:
+            user.delete()
         
         # Serialize and return user data
         serializer = UserSerializer(user)

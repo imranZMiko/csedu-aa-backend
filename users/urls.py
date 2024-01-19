@@ -17,6 +17,8 @@ urlpatterns = [
     path('user/', views.SelfUserDetail.as_view(), name='user_self'),  # Endpoint for retrieving self user information
     path('create/users/', views.UserCreate.as_view(), name='user_create'),  # Endpoint for creating a new user
     path('users/', views.UserList.as_view(), name='user_list'),  # Endpoint for retrieving a list of users
+    path('pending-users/', views.PendingUserList.as_view(), name='pending_user_list'),  # Endpoint for retrieving a list of users
+    path('pending-users/<str:username>/', views.accept_pending, name='accept_pending_user'),  # Endpoint for retrieving a list of users
     path('users/<str:username>/', views.UserDetail.as_view(), name='user_detail'),  # Endpoint for retrieving user details by username
 
     # Profile endpoints
