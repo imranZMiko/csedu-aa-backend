@@ -77,7 +77,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserCardSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='profile.first_name')
     last_name = serializers.CharField(source='profile.last_name')
-    batch_number = serializers.IntegerField(source='profile.batch_number')
+    batch_number = serializers.CharField(source='profile.batch_number')
     country = serializers.CharField(source='profile.present_address.country')
     city = serializers.CharField(source='profile.present_address.city')
     current_company = serializers.SerializerMethodField()
