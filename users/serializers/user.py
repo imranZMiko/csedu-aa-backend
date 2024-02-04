@@ -99,7 +99,7 @@ class UserCardSerializer(serializers.ModelSerializer):
 class SmallUserCardSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='profile.first_name', read_only=True)
     last_name = serializers.CharField(source='profile.last_name', read_only=True)
-    batch_number = serializers.IntegerField(source='profile.batch_number', read_only=True)
+    batch_number = serializers.CharField(source='profile.batch_number', read_only=True)
     profile_picture = serializers.URLField(source='profile.profile_picture', read_only=True)
 
     class Meta:
