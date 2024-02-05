@@ -7,6 +7,8 @@ urlpatterns = [
     path('login/', obtain_auth_token, name='token_obtain_pair'),  # Endpoint for obtaining an authentication token
     path('logout/',logout, name='logout'),  # Endpoint for logging out a user
     path('change-password/', views.ChangePasswordView.as_view(), name='change_password'), # endpoint for changing password
+    path('reset-password/', views.ResetPassword.as_view(), name='reset_password'), # endpoint for resetting password
+    path('reset-password/confirm/', views.ResetPasswordConfirmation.as_view(), name='confirm_reset_password'), # endpoint for resetting password
     
     # Endpoint to make a user an admin
     path('make-admin/', views.make_admin, name='make_admin'),
@@ -15,7 +17,7 @@ urlpatterns = [
 
     # User endpoints
     path('user/', views.SelfUserDetail.as_view(), name='user_self'),  # Endpoint for retrieving self user information
-    path('create/users/', views.UserCreate.as_view(), name='user_create'),  # Endpoint for creating a new user
+    path('create/users/', views.UserCreate.as_view(), name='user_create'),  # Endpoint for creating a new user\
     path('users/', views.UserList.as_view(), name='user_list'),  # Endpoint for retrieving a list of users
     path('pending-users/', views.PendingUserList.as_view(), name='pending_user_list'),  # Endpoint for retrieving a list of users
     path('pending-users/<str:username>/', views.accept_pending, name='accept_pending_user'),  # Endpoint for retrieving a list of users

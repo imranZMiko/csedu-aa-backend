@@ -44,6 +44,16 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
+    def reset_password(self, user, new_password):
+        # Check if the new password is the same as the old password
+        if user.check_password(new_password):
+            raise ValueError("New password cannot be the same as the old password")
+
+        # Set the new password and save the user
+        user.set_password(new_password)
+        user.save()
+        return user
+
     def make_user_admin(self, user):
         user.is_admin = True
         user.save()

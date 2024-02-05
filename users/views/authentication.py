@@ -12,10 +12,12 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from users.models import Referral, User
-from users.serializers import ReferralSerializer, ChangePasswordSerializer, UserSerializer
+from users.serializers import ReferralSerializer, ChangePasswordSerializer, ResetPasswordSerializer, UserSerializer
 from users.managers import UserManager
 from mailing.models import SystemMailManager
 from django.template.loader import render_to_string
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.conf import settings
 import logging
 
 logger = logging.getLogger(__name__)
@@ -105,6 +107,65 @@ class ReferralCreate(APIView):
         # Send success message to requesting user
         return Response({'message': 'Referral sent successfully!'})
 
+
+class ResetPassword(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+
+        try:
+            user = User.objects.get(email_address=email)
+        except:
+            return Response({'error': 'This user does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        token_generator = PasswordResetTokenGenerator()
+        token = token_generator.make_token(user)
+
+        # Send email to referred user
+        mail_manager = SystemMailManager()
+        sender = User.objects.get(id=1)
+        recipients = [email]
+        subject = 'You requested a password reset'
+        context = {
+            'username': user.username,
+            'token': token,
+            }
+        body = render_to_string('reset_email.html', context)
+        try:
+            mail_manager.create_and_send_mail(sender, recipients, subject, body)
+        except Exception as e:
+            logger.error(str(e), exc_info=True, extra={'request': self.request})
+            return Response({'error': 'An error occurred while sending the email'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Send success message to requesting user
+        return Response({'message': 'Email sent successfully!'})
+
+class ResetPasswordConfirmation(APIView):
+    def put(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            token = serializer.validated_data['token']
+            new_password = serializer.validated_data['new_password']
+
+            try:
+                user = User.objects.get(email_address=email)
+            except:
+                return Response({'error': 'This user does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            
+            token_generator = PasswordResetTokenGenerator()
+            is_valid = token_generator.check_token(user, token)
+            
+            if is_valid:
+                try:
+                    user_manager = User.objects
+                    user_manager.reset_password(user, new_password)
+                    return Response({'success': 'Password changed successfully'}, status=status.HTTP_200_OK)
+                except Exception as e:
+                    return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]  # Set the permission class to IsAuthenticated

@@ -13,3 +13,15 @@ class ChangePasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError("Current password and new password cannot be the same")
 
         return data
+    
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.CharField(required=True)
+    token = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate(self, data):
+        email = data.get('email')
+        token = data.get('token')
+        new_password = data.get('new_password')
+
+        return data
