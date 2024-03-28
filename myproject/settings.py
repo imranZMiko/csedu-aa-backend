@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'blogs',
     'events',
     'mailing',
+    'payments',
     'cards',
     'rest_framework',
     'rest_framework.authtoken',
