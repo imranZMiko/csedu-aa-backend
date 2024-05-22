@@ -32,13 +32,16 @@ class UserSerializer(serializers.ModelSerializer):
             is_pending = True
             referral_user = None
         else:
-            try:
-                referral = Referral.objects.get(referral_code=referral_code)
-                referral_user = referral.referrer
-            except ObjectDoesNotExist:
-                raise serializers.ValidationError('Invalid referral')
-            if email_address != referral.referred_email:
-                raise serializers.ValidationError('The referral should be used with the same email it was created for.')
+            if referral_code == 'AGM24':
+                referral_user = None
+            else:
+                try:
+                    referral = Referral.objects.get(referral_code=referral_code)
+                    referral_user = referral.referrer
+                except ObjectDoesNotExist:
+                    raise serializers.ValidationError('Invalid referral')
+                if email_address != referral.referred_email:
+                    raise serializers.ValidationError('The referral should be used with the same email it was created for.')
 
         first_name = validated_data.pop('first_name', None)
         last_name = validated_data.pop('last_name', None)
