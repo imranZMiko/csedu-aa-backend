@@ -14,8 +14,22 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'is_admin', 'is_pending', 'username', 'email_address', 'password', 'referral_code', 'referred_by', 'first_name', 'last_name', 'batch_number', 'sex']
-        read_only_fields = ['id', 'is_admin']
+        fields = [
+            'id', 
+            'is_admin', 
+            'is_pending', 
+            'username',
+            'email_address', 
+            'password', 
+            'referral_code', 
+            'referred_by', 
+            'first_name', 
+            'last_name', 
+            'batch_number', 
+            'sex',
+            'membership'
+        ]
+        read_only_fields = ['id', 'is_admin', 'membership']
         extra_kwargs = {
             'password': {'write_only': True},
             'username': {'validators': []},
@@ -32,16 +46,13 @@ class UserSerializer(serializers.ModelSerializer):
             is_pending = True
             referral_user = None
         else:
-            if referral_code == 'AGM24':
-                referral_user = None
-            else:
-                try:
-                    referral = Referral.objects.get(referral_code=referral_code)
-                    referral_user = referral.referrer
-                except ObjectDoesNotExist:
-                    raise serializers.ValidationError('Invalid referral')
-                if email_address != referral.referred_email:
-                    raise serializers.ValidationError('The referral should be used with the same email it was created for.')
+            try:
+                referral = Referral.objects.get(referral_code=referral_code)
+                referral_user = referral.referrer
+            except ObjectDoesNotExist:
+                raise serializers.ValidationError('Invalid referral')
+            if email_address != referral.referred_email:
+                raise serializers.ValidationError('The referral should be used with the same email it was created for.')
 
         first_name = validated_data.pop('first_name', None)
         last_name = validated_data.pop('last_name', None)
@@ -89,8 +100,8 @@ class UserCardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'is_admin', 'username', 'email_address', 'first_name', 'last_name', 'batch_number', 'country', 'city', 'current_company', 'sex', 'profile_picture']
-        read_only_fields = ['id', 'is_admin']
+        fields = ['id', 'is_admin', 'username', 'email_address', 'first_name', 'last_name', 'batch_number', 'country', 'city', 'current_company', 'sex', 'profile_picture', 'membership']
+        read_only_fields = fields
 
     def get_current_company(self, obj):
         current_work_experience = WorkExperience.objects.filter(profile__user=obj, currently_working=True).first()
@@ -107,5 +118,5 @@ class SmallUserCardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'batch_number', 'profile_picture']
+        fields = ['username', 'first_name', 'last_name', 'batch_number', 'profile_picture', 'membership']
         read_only_fields = fields

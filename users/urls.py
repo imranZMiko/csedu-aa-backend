@@ -22,6 +22,8 @@ urlpatterns = [
     path('pending-users/', views.PendingUserList.as_view(), name='pending_user_list'),  # Endpoint for retrieving a list of users
     path('pending-users/<str:username>/', views.accept_pending, name='accept_pending_user'),  # Endpoint for retrieving a list of users
     path('users/<str:username>/', views.UserDetail.as_view(), name='user_detail'),  # Endpoint for retrieving user details by username
+    path('users/<str:username>/change-membership/', views.change_membership, name='user_change_membership'),
+    
 
     # Profile endpoints
     path('basic-profile/', views.SelfProfileDetail.as_view(), name='basic_profile_self'),  # Endpoint for retrieving self profile information
@@ -69,4 +71,9 @@ urlpatterns = [
 
     # Full Profile View
     path('profiles/<str:username>/', views.FullProfileDetail.as_view(), name='full_profile_detail'),  # Retrieve full profile information of a user by username
+
+    path('membership-claim/', views.MembershipClaimView.as_view(), name='membership_claim'), 
+    path('membership-claim/<int:id>/', views.accept_membership_claim, name='accept_membership_claim'),
+
+    path('membership-claims/', views.MembershipClaimList.as_view(), name='membership_claim_list'), 
 ]

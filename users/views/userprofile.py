@@ -2,13 +2,17 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from django.http import Http404
 from django.contrib.auth import get_user_model
+from users.managers import UserManager
 from users.models import Profile
+from users.models.membership_choices import MEMBERSHIP_CHOICES
 from users.serializers import ProfileSerializer, UserSerializer, UserCardSerializer
 from rest_framework import status
 from users.models import User, Profile
 from users.serializers import UserSerializer, ProfileSerializer
 from rest_framework.pagination import PageNumberPagination
 from fuzzywuzzy import fuzz
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
 
@@ -181,3 +185,42 @@ class PendingUserList(generics.ListAPIView):
             self.pagination_class = None
 
         return queryset
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_membership(request, username):
+    """
+    API endpoint to make a user an admin.
+    Only superusers and admins can access this method.
+    """
+    try:
+        # Get username from request
+        category = request.data.get('category')
+        
+        # Check if username is provided
+        if not category:
+            return Response({'error': 'category is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if category not in [choice[0] for choice in MEMBERSHIP_CHOICES]:
+            return Response({'error': 'Invalid category'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if user exists
+        user = User.objects.get(username=username)
+        
+        # Check if the logged in user is an admin
+        if not request.user.is_superuser and not request.user.is_admin:
+            return Response({'error': 'Only superusers and admins can make a user an admin'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Make user an admin
+        UserManager().changeMembership(user, category)
+        
+        # Serialize and return user data
+        serializer = UserCardSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

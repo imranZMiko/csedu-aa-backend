@@ -76,3 +76,8 @@ class UserManager(BaseUserManager):
         user.save()
         return user
     
+    def changeMembership(self, user, membership_choice):
+        user.membership = membership_choice
+        user.save()
+        return user
+    
