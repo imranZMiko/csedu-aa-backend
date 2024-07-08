@@ -6,5 +6,5 @@ class MembershipClaimSerializer(serializers.ModelSerializer):
     claimaint = SmallUserCardSerializer(read_only = True)
     class Meta:
         model = MembershipClaim
-        fields = '__all__'
+        fields = ['id', 'claimant', 'category', 'amount_paid', 'date_of_registration', 'proof_of_registration']
         read_only_fields = ['claimant']

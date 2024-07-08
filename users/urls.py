@@ -12,6 +12,7 @@ urlpatterns = [
     
     # Endpoint to make a user an admin
     path('make-admin/', views.make_admin, name='make_admin'),
+    path('set-role/', views.set_role, name='set_role'),
     # Endpoint to remove adminship from a user
     path('remove-admin/<str:username>/', views.remove_admin, name='remove_admin'),
 

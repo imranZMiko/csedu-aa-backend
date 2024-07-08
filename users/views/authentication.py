@@ -19,6 +19,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.conf import settings
 import logging
+from users.models.choices import ROLE_CHOICES
 
 logger = logging.getLogger(__name__)
 
@@ -50,10 +51,10 @@ def obtain_auth_token(request):
         return Response({
             'error': 'Invalid credentials'
         }, status=status.HTTP_401_UNAUTHORIZED)
-    if user.is_pending:
-        return Response({
-            'error': 'Registration pending'
-        }, status=status.HTTP_403_FORBIDDEN)
+    # if user.is_pending:
+    #     return Response({
+    #         'error': 'Registration pending'
+    #     }, status=status.HTTP_403_FORBIDDEN)
 
     token, created = Token.objects.get_or_create(user=user)
     return Response({'token': token.key})
@@ -96,7 +97,7 @@ class ReferralCreate(APIView):
             'referrer_last_name' : referrer_last_name,
             }
         body = render_to_string('referral_email.html', context)
-        # logger.info(f"{body}", extra={'request': self.request})
+        logger.debug(f"Sender: {sender}")
         try:
             mail_manager.create_and_send_mail(sender, recipients, subject, body)
         except Exception as e:
@@ -109,6 +110,9 @@ class ReferralCreate(APIView):
 
 
 class ResetPassword(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
     def post(self, request):
         email = request.data.get('email')
 
@@ -122,7 +126,7 @@ class ResetPassword(APIView):
 
         # Send email to referred user
         mail_manager = SystemMailManager()
-        sender = User.objects.get(id=1)
+        sender = User.objects.filter(role='GS').first()
         recipients = [email]
         subject = 'You requested a password reset'
         context = {
@@ -244,6 +248,48 @@ def remove_admin(request, username):
         
         # Remove adminship from user
         UserManager().remove_user_adminship(user)
+        
+        # Serialize and return user data
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_role(request):
+    """
+    API endpoint to set a user's role.
+    Only superusers and admins can access this method.
+    """
+    try:
+        # Get username and role from request
+        username = request.data.get('username')
+        role = request.data.get('role')
+        
+        # Check if username and role are provided
+        if not username or not role:
+            return Response({'error': 'username and role are required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if role is valid
+        valid_roles = [choice[0] for choice in ROLE_CHOICES]
+        if role not in valid_roles:
+            return Response({'error': 'Invalid role'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if user exists
+        user = User.objects.get(username=username)
+        
+        # Check if the logged in user is an admin or superuser
+        if not request.user.is_superuser and not request.user.is_admin:
+            return Response({'error': 'Only superusers and admins can set a user role'}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Set user's role
+        user.role = role
+        user.save()
         
         # Serialize and return user data
         serializer = UserSerializer(user)

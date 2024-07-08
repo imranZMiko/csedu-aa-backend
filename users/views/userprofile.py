@@ -2,9 +2,10 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from django.http import Http404
 from django.contrib.auth import get_user_model
+from mailing.models.sent_emails import SystemMailManager
 from users.managers import UserManager
 from users.models import Profile
-from users.models.membership_choices import MEMBERSHIP_CHOICES
+from users.models.choices import MEMBERSHIP_CHOICES
 from users.serializers import ProfileSerializer, UserSerializer, UserCardSerializer
 from rest_framework import status
 from users.models import User, Profile
@@ -13,13 +14,38 @@ from rest_framework.pagination import PageNumberPagination
 from fuzzywuzzy import fuzz
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
+from django.template.loader import render_to_string
+import logging
 
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 class UserCreate(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        email = user.email_address
+        profile = Profile.objects.get(user=user)
+        # Send email to referred user
+        mail_manager = SystemMailManager()
+        sender = User.objects.filter(role='GS').first()
+        recipients = [email]
+        subject = 'Welcome to CSEDU Alumni Association'
+        context = {
+            'first_name': profile.first_name,
+            'last_name': profile.last_name,
+            }
+        body = render_to_string('registration_success.html', context)
+        try:
+            mail_manager.create_and_send_mail(sender, recipients, subject, body)
+        except Exception as e:
+            logger.error(str(e), exc_info=True, extra={'request': self.request})
+            return Response({'error': 'An error occurred while sending the email'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 class ProfileDetail(generics.RetrieveUpdateAPIView):
     queryset = Profile.objects.all()

@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 import logging
+from django.core.mail import EmailMultiAlternatives
 
 logger = logging.getLogger(__name__)
 
@@ -29,21 +30,17 @@ class SystemMailManager(models.Manager):
             # Create a new SystemMail instance
             mail = SystemMail.objects.create(subject=subject, sender = sender, body=body, sent_at=None, is_mail_private = is_mail_private)
 
-            # Add recipients to the mail instance
-            for email in recipient_emails:
-                recipient, created = CommonEmailAddress.objects.get_or_create(email=email)
-                mail.recipients.add(recipient)
 
             # logger.info(settings.EMAIL_HOST_USER)
             # Send the email using Django's send_mail function
             try:
-                send_mail(
-                    subject=subject,
-                    message=body,
-                    from_email= f"CSEDU Connect <{settings.EMAIL_HOST_USER}>",
-                    recipient_list=recipient_emails,
-                    fail_silently=False,
+                email = EmailMultiAlternatives(
+                subject=subject,
+                from_email= f"CSEDU Connect <{settings.EMAIL_HOST_USER}>",
+                to=recipient_emails
                 )
+                email.attach_alternative(body, "text/html")
+                email.send(fail_silently=False)
 
             except smtplib.SMTPException as e:
                 # Set the is_sent flag to False to indicate that the email failed to send
@@ -95,13 +92,13 @@ class UserMailManager(models.Manager):
             mail.recipients.add(recipient)
 
         try:
-            send_mail(
-                subject=subject,
-                message=body,
-                from_email= f"{sender.profile.first_name} from CSEDU Connect <{sender.email_address}>",
-                recipient_list=[recipient.email_address for recipient in recipients],
-                fail_silently=False,
+            email = EmailMultiAlternatives(
+            subject=subject,
+            from_email=f"{sender.profile.first_name} from CSEDU Connect <{settings.EMAIL_HOST_USER}>",
+            to=[recipient.email_address for recipient in recipients]
             )
+            email.attach_alternative(body, "text/html")
+            email.send(fail_silently=False)
         except smtplib.SMTPException as e:
             # Set the is_sent flag to False to indicate that the email failed to send
             mail.is_sent = False

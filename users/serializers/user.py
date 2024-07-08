@@ -27,9 +27,10 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name', 
             'batch_number', 
             'sex',
-            'membership'
+            'membership',
+            'role'
         ]
-        read_only_fields = ['id', 'is_admin', 'membership']
+        read_only_fields = ['id', 'is_admin', 'membership', 'role']
         extra_kwargs = {
             'password': {'write_only': True},
             'username': {'validators': []},
@@ -100,7 +101,7 @@ class UserCardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'is_admin', 'username', 'email_address', 'first_name', 'last_name', 'batch_number', 'country', 'city', 'current_company', 'sex', 'profile_picture', 'membership']
+        fields = ['id', 'is_admin', 'username', 'email_address', 'first_name', 'last_name', 'batch_number', 'country', 'city', 'current_company', 'sex', 'profile_picture', 'membership', 'role']
         read_only_fields = fields
 
     def get_current_company(self, obj):
@@ -118,5 +119,5 @@ class SmallUserCardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'batch_number', 'profile_picture', 'membership']
+        fields = ['username', 'first_name', 'last_name', 'batch_number', 'profile_picture', 'membership', 'role']
         read_only_fields = fields

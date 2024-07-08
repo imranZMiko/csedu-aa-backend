@@ -4,7 +4,7 @@ from base.models import BaseModel
 from users.managers import UserManager
 import re
 from django.core.exceptions import ValidationError
-from users.models.membership_choices import MEMBERSHIP_CHOICES
+from users.models.choices import MEMBERSHIP_CHOICES, ROLE_CHOICES
 
 class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     email_address = models.EmailField(max_length=255, unique=True)
@@ -13,6 +13,7 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     is_pending = models.BooleanField(default=True)
     membership = models.CharField(max_length=16, choices=MEMBERSHIP_CHOICES, default='None')
+    role = models.CharField(max_length=25, choices=ROLE_CHOICES, default='None')
 
     # Custom validator for the username field
     def validate_username(value):

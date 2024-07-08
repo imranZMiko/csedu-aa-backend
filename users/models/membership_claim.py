@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from users.models.membership_choices import CLAIMANT_CHOICES
+from users.models.choices import CLAIMANT_CHOICES
 from django.core.validators import MinValueValidator
 
 User = get_user_model()

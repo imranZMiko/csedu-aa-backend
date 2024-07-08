@@ -9,13 +9,14 @@ from users.serializers import UserCardSerializer
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.pagination import PageNumberPagination
+from users.permissions import IsRoleGSOrPresident
 
 class MembershipClaimView(APIView):
     queryset = MembershipClaim.objects.all()
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, format=None):
-        serializer = MembershipClaimSerializer(data=request.data)
+        serializer = MembershipClaimSerializer(data={**request.data, 'claimant': request.user.id})
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -43,7 +44,7 @@ class MembershipClaimList(generics.ListAPIView):
         return queryset
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated, IsAdminUser])
+@permission_classes([IsAuthenticated, IsAdminUser, IsRoleGSOrPresident])
 def accept_membership_claim(request, id):
     """
     API endpoint to accept or decline a pending user.

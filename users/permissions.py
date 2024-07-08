@@ -12,3 +12,10 @@ class IsOwnerOrReadOnly(BasePermission):
 
         # Write permissions are only allowed to the owner of the profile.
         return obj.profile.user == request.user
+
+class IsRoleGSOrPresident(BasePermission):
+    """
+    Custom permission to only allow users with the role of 'GS' or 'President'.
+    """
+    def has_permission(self, request, view):
+        return request.user.role in ['GS', 'President']

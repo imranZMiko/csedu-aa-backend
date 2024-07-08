@@ -9,6 +9,9 @@ from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SendEmailToUser(APIView):
     permission_classes = [IsAuthenticated]
@@ -65,6 +68,8 @@ class AdminSendEmailToMultipleUser(APIView):
             raise NotFound('No valid recipients found')
 
         try:
+            logger.debug(f"Sender: {sender}")
+
             mail = UserMail.objects.create_and_send_mail(
                 sender = sender, usernames=[recipient.username for recipient in recipients], subject=subject, body=body, is_mail_private=False)
             serialized_mail = UserMailMultipleSendingSerializer(mail)

@@ -5,6 +5,9 @@ from mailing.models import SystemMail, UserMail
 from mailing.serializers import SystemMailSerializer, UserMailSerializer
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 class SystemMailList(ListAPIView):
     serializer_class = SystemMailSerializer
@@ -51,6 +54,8 @@ class UserMailList(ListAPIView):
         if recipient_username:
             queryset = queryset.filter(recipients__username=recipient_username)
 
+        queryset = queryset.filter(is_sent=True)
+
         page_size = self.request.query_params.get('page_size', None)
         
         if page_size :
@@ -77,6 +82,7 @@ class UserMailDetail(RetrieveAPIView):
         context['request'] = self.request
         return context
 
+
 class UserSentMailList(ListAPIView):
     serializer_class = UserMailSerializer
     permission_classes = [IsAuthenticated]
@@ -88,6 +94,8 @@ class UserSentMailList(ListAPIView):
         recipient_username = self.request.query_params.get('recipient', None)
         if recipient_username:
             queryset = queryset.filter(recipients__username=recipient_username)
+
+        queryset = queryset.filter(is_sent=True)
 
         page_size = self.request.query_params.get('page_size', None)
         
